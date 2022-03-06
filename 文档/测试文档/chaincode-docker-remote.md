@@ -20,7 +20,7 @@ $ docker-compose version
 Docker Compose version v2.2.2
 ```
 
-请注意，虽然该项目使用的是v2.2版本的fabric，但是`fabric-samples v1.4`中的开发者模式仍然适用。请单独下载`fabric-samples v1.4`中的`chaincode-docker-devmode`,放入``fabric-samples`目录下。
+请注意，虽然该项目使用的是v2.2版本的fabric，但是`fabric-samples v1.4`中的开发者模式仍然适用。请单独下载`fabric-samples v1.4`中的`chaincode-docker-devmode`,放入`fabric-samples`目录下。
 
 ## 目录结构
 
@@ -53,12 +53,13 @@ $ docker-compose -f docker-compose-simple.yaml up
 
 ```cmd
 $ docker exec -it --user root chaincode sh
-$ cd contract
+$ cd contract # contract为链代码的文件夹
 # 打包代码
 $ go mod vendor
 $ go build
 # 运行代码
 $ CORE_CHAINCODE_ID_NAME=mycc:0 CORE_PEER_TLS_ENABLED=false ./contract -peer.address peer:7052
+# 注意：该命令不会退出
 ```
 
 ### 交互
@@ -75,5 +76,18 @@ $ peer chaincode instantiate -n mycc -v 0 -c '{"Args":[]}' -C myc
 $ peer chaincode invoke -n mycc -c '{"Args":["函数名", "参数1", "参数2", ...]}' -C myc
 # 查询(不涉及链上数据变化)
 $ peer chaincode query -n mycc -c '{"Args":["函数名", "参数1"]}' -C myc
+```
+
+部分关于docker的命令参考如下
+
+```cmd
+# 列出所有容器id
+$ docker ps -aq
+# 停止所有的容器
+$ docker stop $(docker ps -aq)
+# 删除所有容器
+$ docker rm $(docker ps -aq)
+# 删除所有停止的容器
+$ docker container prune
 ```
 
