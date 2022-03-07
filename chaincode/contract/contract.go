@@ -5,18 +5,30 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
 // data saved on chain, please see the database design interface for more details
+
+// t_superviser
+type Superviser struct {
+	Id             string `json:"id"`
+	Name           string `json:"name"`
+	State          bool   `json:"state"`
+	Remakes        string `json:"remakes"`
+	LastUpdateTime string `json:"lastUpdateTime"`
+}
+
 // t_customer_account
 type Customer struct {
 	AccountId       string   `json:"accountId"`
 	DiscountList    []string `json:"discountList"`
 	CommodityIdList []string `json:"commodityIdList"`
-	Balance         string   `json:"balance"`
+	Balance         int64    `json:"balance"`
 	Currency        string   `json:"currency"`
+	State           bool     `json:"state"`
 	LastUpdateTime  string   `json:"lastUpdateTime"`
 }
 
@@ -24,9 +36,10 @@ type Customer struct {
 type Bussiness struct {
 	AccountId       string   `json:"accountId"`
 	CommodityIdList []string `json:"commodityIdList"`
-	Balance         []string `json:"balance"`
+	Balance         int64    `json:"balance"`
 	Currency        string   `json:"currency"`
-	DiscountList    string   `json:"discountList"`
+	DiscountList    []string `json:"discountList"`
+	State           bool     `json:"state"`
 	LastUpdateTime  string   `json:"lastUpdateTime"`
 }
 
@@ -89,6 +102,14 @@ const (
 	COMMMODITY_STATE_RETURNED = "0004"
 )
 
+// account state code
+const (
+	ACCOUNT_STATE_REGISTER = "0000"
+	ACCOUNT_STATE_ACTIVE   = "0001"
+	ACCOUNT_STATE_CANCEL   = "0002"
+	ACCOUNT_STATE_DELETE   = "0003"
+)
+
 // remarks for t_trade
 const (
 	REMAKES_TRADE_BOUGHT = "Be bought"
@@ -100,6 +121,13 @@ const (
 	PREFIX_ID_CUSTOMER      = "0000"
 	PREFIX_ID_BUSSINIESSMAN = "0001"
 	PREFIX_ID_COMMIDITY     = "0002"
+	PREFIX_ID_SUPERVISER    = "0004"
+)
+
+// account state
+const (
+	ACCOUNT_STATE_VALID   = true
+	ACCOUNT_STATE_INVALID = false
 )
 
 // error code.For the specific meaning of the error code,
@@ -131,28 +159,69 @@ func (sc *SimpleContract) idUniquenessCheck(ctx contractapi.TransactionContextIn
 	return nil, true
 }
 
-// new customer registration
-func (sc *SimpleContract) CustormerRegistration(ctx contractapi.TransactionContextInterface, customer string) error {
-	var cus Customer
-
-	err := json.Unmarshal([]byte(customer), &cus)
-	if err != nil {
-		return errors.New(ERROR_CODE_MARSHAL)
-	}
+// SuperviserRegistration defines functions which used for new superviser registration.
+func (sc *SimpleContract) SuperviserRegistration(ctx contractapi.TransactionContextInterface,
+	id string, name string, remarks string) error {
 
 	//id prefix check
-	//According to the regulations, all customer ids must start with PREFIX_ID_CUSTOMER,
+	//According to the regulations, all customer ids must start with PREFIX_ID_SUPERVISER,
 	//if not, it is illegal id
-	if !strings.HasPrefix(cus.AccountId, PREFIX_ID_CUSTOMER) {
+	if !strings.HasPrefix(id, PREFIX_ID_SUPERVISER) {
 		return errors.New(ERROR_CODE_ILLEGALID)
 	}
 
 	//id uniqueness check
-	err, valid := sc.idUniquenessCheck(ctx, cus.AccountId)
+	err, valid := sc.idUniquenessCheck(ctx, id)
 	if !valid {
 		return err
 	}
 
+	sup := Superviser{
+		Id:             id,
+		Name:           name,
+		State:          true,
+		Remakes:        remarks,
+		LastUpdateTime: string(rune(time.Now().Unix())),
+	}
+
+	// sup struct to string
+	supjson, err := json.Marshal(sup)
+	if err != nil {
+		return errors.New(ERROR_CODE_MARSHAL)
+	}
+
+	err = ctx.GetStub().PutState(sup.Id, supjson)
+	if err != nil {
+		return errors.New(ERROR_CODE_PUTCHAINFAILED)
+	}
+	return nil
+}
+
+// CustormerRegistration defines functions which used for new customer registration.
+func (sc *SimpleContract) CustormerRegistration(ctx contractapi.TransactionContextInterface,
+	id string) error {
+
+	if !strings.HasPrefix(id, PREFIX_ID_CUSTOMER) {
+		return errors.New(ERROR_CODE_ILLEGALID)
+	}
+	//id uniqueness check
+	err, valid := sc.idUniquenessCheck(ctx, id)
+	if !valid {
+		return err
+	}
+
+	discount := []string{}
+	commmodity := []string{}
+
+	cus := Customer{
+		AccountId:       id,
+		DiscountList:    discount,
+		CommodityIdList: commmodity,
+		Balance:         0,
+		Currency:        CURRENCY_RMB,
+		State:           ACCOUNT_STATE_VALID,
+		LastUpdateTime:  string(rune(time.Now().Unix())),
+	}
 	// cus struct to string
 	cusjson, err := json.Marshal(cus)
 	if err != nil {
@@ -160,6 +229,48 @@ func (sc *SimpleContract) CustormerRegistration(ctx contractapi.TransactionConte
 	}
 
 	err = ctx.GetStub().PutState(cus.AccountId, []byte(cusjson))
+	if err != nil {
+		return errors.New(ERROR_CODE_PUTCHAINFAILED)
+	}
+	return nil
+}
+
+// BussinessRegistration defines functions which used for new customer registration.
+// The design of Bussiness and Customer data storage structure is very similar, and the registration method is
+// very similar too. However, it is still disassembled into two methods to facilitate adding functions later.
+func (sc *SimpleContract) BussinessRegistration(ctx contractapi.TransactionContextInterface, id string) error {
+
+	if !strings.HasPrefix(id, PREFIX_ID_BUSSINIESSMAN) {
+		return errors.New(ERROR_CODE_ILLEGALID)
+	}
+
+	//id uniqueness check
+	err, valid := sc.idUniquenessCheck(ctx, id)
+	if !valid {
+		return err
+	}
+
+	discount := []string{}
+	commmodity := []string{}
+
+	bus := Bussiness{
+		AccountId:       id,
+		CommodityIdList: commmodity,
+		DiscountList:    discount,
+		Balance:         0,
+		Currency:        CURRENCY_RMB,
+		State:           ACCOUNT_STATE_VALID,
+		LastUpdateTime:  string(rune(time.Now().Unix())),
+	}
+
+	// bus struct to string
+	busjson, err := json.Marshal(bus)
+	if err != nil {
+		return errors.New(ERROR_CODE_MARSHAL)
+	}
+
+	err = ctx.GetStub().PutState(bus.AccountId, []byte(busjson))
+
 	if err != nil {
 		return errors.New(ERROR_CODE_PUTCHAINFAILED)
 	}
