@@ -1,2 +1,2 @@
 # TradingSystem-Blockchain
-基于区块链的交易系统设计
+基于区块链的资产管理系统设计
