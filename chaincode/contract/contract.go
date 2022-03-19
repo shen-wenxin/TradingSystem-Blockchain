@@ -4,110 +4,103 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
-// data saved on chain, please see the database design interface for more details
-
-// t_superviser
+// 链上数据结构
+// t_superviser 监管人员
 type Superviser struct {
-	Id             string `json:"id"`
-	Name           string `json:"name"`
-	State          bool   `json:"state"`
-	Remakes        string `json:"remakes"`
-	LastUpdateTime string `json:"lastUpdateTime"`
+	Id             string `json:"id"`             //id号，全局唯一
+	Name           string `json:"name"`           //名字
+	State          bool   `json:"state"`          // 账号状态
+	Remakes        string `json:"remakes"`        // 备注
+	LastUpdateTime string `json:"lastUpdateTime"` //最近更新时间
 }
 
-// t_customer_account
+// t_customer_account	消费者信息
 type Customer struct {
-	AccountId       string   `json:"accountId"`
-	DiscountList    []string `json:"discountList"`
-	CommodityIdList []string `json:"commodityIdList"`
-	Balance         int64    `json:"balance"`
-	Currency        string   `json:"currency"`
-	State           bool     `json:"state"`
-	LastUpdateTime  string   `json:"lastUpdateTime"`
+	AccountId       string   `json:"accountId"`       // Id号，全局唯一
+	DiscountList    []string `json:"discountList"`    // 优惠卷id表
+	CommodityIdList []string `json:"commodityIdList"` //拥有商品id 表
+	Balance         int64    `json:"balance"`         // 余额
+	Currency        string   `json:"currency"`        //币种
+	State           bool     `json:"state"`           // 状态
+	LastUpdateTime  string   `json:"lastUpdateTime"`  // 最近更新时间
 }
 
 // t_bussiness_account
 type Bussiness struct {
-	AccountId       string   `json:"accountId"`
-	CommodityIdList []string `json:"commodityIdList"`
-	Balance         int64    `json:"balance"`
-	Currency        string   `json:"currency"`
-	DiscountList    []string `json:"discountList"`
-	State           bool     `json:"state"`
-	LastUpdateTime  string   `json:"lastUpdateTime"`
+	AccountId       string   `json:"accountId"`       // Id号，全局唯一
+	CommodityIdList []string `json:"commodityIdList"` // 商品表
+	Balance         int64    `json:"balance"`         // 余额
+	Currency        string   `json:"currency"`        // 币种
+	DiscountList    []string `json:"discountList"`    // 派发的优惠卷
+	State           bool     `json:"state"`           // 账户状态
+	LastUpdateTime  string   `json:"lastUpdateTime"`  // 最近更新时间
 }
 
 // t_commodity
 type Commmodity struct {
-	CommodityId string `json:"commodityId"`
-	Name        string `json:"name"`
-	Price       string `json:"price"`
-	Currency    string `json:"currency"`
-	IssuerId    string `json:"issuerId"`
-	OwnerId     string `json:"ownerId"`
-	LastUpdate  string `json:"lastUpdate"`
-	State       string `json:"state"`
-	Remakes     string `json:"remakes"`
+	CommodityId string `json:"commodityId"` // 商品id
+	Name        string `json:"name"`        // 商品名称
+	Price       int64  `json:"price"`       //价格
+	Currency    string `json:"currency"`    // 币种
+	IssuerId    string `json:"issuerId"`    // 发行者id
+	OwnerId     string `json:"ownerId"`     // 所属人id
+	LastUpdate  string `json:"lastUpdate"`  // 最近更新时间
+	State       string `json:"state"`       // 状态
+	Remakes     string `json:"remakes"`     // 备注
 }
 
 // t_trade
 type Trade struct {
-	TradeId        string `json:"tradeId"`
-	TradeTime      string `json:"tradeTime"`
-	BuyerId        string `json:"buyerId"`
-	SalerId        string `json:"salerId"`
-	CommodityId    string `json:"commodityId"`
-	Valid          bool   `json:"valid"`
-	LastUpdateTime string `json:"lastUpdateTime"`
-	Remakes        string `json:"remakes"`
+	TradeId        string `json:"tradeId"`        // 交易id号
+	TradeTime      string `json:"tradeTime"`      // 交易时间
+	Price          string `json:"price"`          // 价格
+	BuyerId        string `json:"buyerId"`        // 消费者id
+	SalerId        string `json:"salerId"`        //商家id
+	CommodityId    string `json:"commodityId"`    // 商品id
+	Valid          bool   `json:"valid"`          // 交易是否有效
+	LastUpdateTime string `json:"lastUpdateTime"` // 最近更新时间
+	Remakes        string `json:"remakes"`        // 备注
 }
 
 // t_operate
 type Operate struct {
-	Id            string `json:"tradeId"`
-	Time          string `json:"time"`
-	OperaterId    string `json:"operaterId"`
-	OperatereedId string `json:"operatereedId"`
-	OperateType   string `json:"operateType"`
+	Id            string `json:"tradeId"`       // 操作id
+	Time          string `json:"time"`          // 时间
+	OperaterId    string `json:"operaterId"`    // 操作员id
+	OperatereedId string `json:"operatereedId"` // 被操作者id
+	OperateType   string `json:"operateType"`   // 操作类型
 }
 
 // t_discount
 type Discount struct {
-	DiscountId string `json:"discountId"`
-	Name       string `json:"name"`
-	AccountId  string `json:"accountId"`
-	BusinessId string `json:"businessId"`
-	BeginTime  string `json:"beginTime"`
-	EndTime    string `json:"endTime"`
-	Valid      bool   `json:"valid"`
+	DiscountId string `json:"discountId"` // id,全局唯一
+	Name       string `json:"name"`       // 姓名
+	AccountId  string `json:"accountId"`  // 所属者id
+	BusinessId string `json:"businessId"` // 派发商户id
+	BeginTime  string `json:"beginTime"`  // 开始时间
+	EndTime    string `json:"endTime"`    // 结束时间
+	Valid      bool   `json:"valid"`      // 有效
 }
 
-// FORMAT please see the Constant Definitions - Prefix Definitions for more details
-// currency code
+// 常量定义
+// 币种
 const (
-	CURRENCY_RMB = "0001"
+	CURRENCY_RMB = "0001" // 人民币
 )
 
-// commodity state code
+// 商品状态码
 const (
-	COMMMODITY_STATE_ONSALE   = "0001"
-	COMMMODITY_STATE_OFFSATE  = "0002"
-	COMMMODITY_STATE_BEBOUGHT = "0003"
-	COMMMODITY_STATE_RETURNED = "0004"
-)
-
-// account state code
-const (
-	ACCOUNT_STATE_REGISTER = "0000"
-	ACCOUNT_STATE_ACTIVE   = "0001"
-	ACCOUNT_STATE_CANCEL   = "0002"
-	ACCOUNT_STATE_DELETE   = "0003"
+	COMMMODITY_STATE_ONSALE   = "0001" // 商品待售
+	COMMMODITY_STATE_OFFSATE  = "0002" // 商品下架
+	COMMMODITY_STATE_BEBOUGHT = "0003" // 已被购买
+	COMMMODITY_STATE_RETURNED = "0004" // 商品已被退回
 )
 
 // remarks for t_trade
@@ -130,14 +123,15 @@ const (
 	ACCOUNT_STATE_INVALID = false
 )
 
-// error code.For the specific meaning of the error code,
-//see Constant Definition -  Error Code Definition
+// 错误码定义
 const (
 	ERROR_CODE_MARSHAL        = "E0001"
 	ERROR_CODE_ILLEGALID      = "E0002"
 	ERROR_CODE_GETCHAINFAILED = "E0003"
 	ERROR_CODE_EXISTINGDATA   = "E0004"
 	ERROR_CODE_PUTCHAINFAILED = "E0005"
+	ERROR_CODE_USERINVALID    = "E0006" //用户不合法
+	ERROR_CODE_UNEXISTDATA    = "E0007" // 链上不存在数据
 )
 
 // SimpleContract contract for handling writing and reading from the world state
@@ -145,9 +139,8 @@ type SimpleContract struct {
 	contractapi.Contract
 }
 
-// id uniqueness check. Check if there is datas stored with this id on the chain
-// if there is datas stored with this id, return false
-// the function is not visible outside
+// id 唯一性检查，检查链上是否有该id为key值存储的数据，如果有，返回false(不唯一)
+// 该 function 外部不可见
 func (sc *SimpleContract) idUniquenessCheck(ctx contractapi.TransactionContextInterface, id string) (error, bool) {
 	existing, err := ctx.GetStub().GetState(id)
 	if err != nil {
@@ -159,18 +152,48 @@ func (sc *SimpleContract) idUniquenessCheck(ctx contractapi.TransactionContextIn
 	return nil, true
 }
 
-// SuperviserRegistration defines functions which used for new superviser registration.
+// BussinessIdentityCheck 用来检查 ID 为id 的商户是否为合法用户
+func (sc *SimpleContract) BussinessIdentityCheck(ctx contractapi.TransactionContextInterface, id string) (error, bool) {
+
+	if !strings.HasPrefix(id, PREFIX_ID_BUSSINIESSMAN) {
+		return errors.New(ERROR_CODE_ILLEGALID), false
+	}
+
+	// 检查链上是否有为该id的商户的数据
+	existing, err := ctx.GetStub().GetState(id)
+	if err != nil {
+		return errors.New(ERROR_CODE_GETCHAINFAILED), false
+	}
+	if existing == nil {
+		return errors.New(ERROR_CODE_UNEXISTDATA), false
+	}
+
+	var bus Bussiness
+	err = json.Unmarshal(existing, &bus)
+
+	if err != nil {
+		return errors.New(ERROR_CODE_MARSHAL), false
+	}
+
+	// 数据合法性检查
+	if bus.State == ACCOUNT_STATE_INVALID {
+		// 商家状态不合法
+		return errors.New(ERROR_CODE_USERINVALID), false
+	}
+
+	return nil, true
+}
+
+// SuperviserRegistration 监管人员身份注册
 func (sc *SimpleContract) SuperviserRegistration(ctx contractapi.TransactionContextInterface,
 	id string, name string, remarks string) error {
 
-	//id prefix check
-	//According to the regulations, all customer ids must start with PREFIX_ID_SUPERVISER,
-	//if not, it is illegal id
+	// id 前缀检查
 	if !strings.HasPrefix(id, PREFIX_ID_SUPERVISER) {
 		return errors.New(ERROR_CODE_ILLEGALID)
 	}
 
-	//id uniqueness check
+	//id 唯一性检查
 	err, valid := sc.idUniquenessCheck(ctx, id)
 	if !valid {
 		return err
@@ -179,9 +202,9 @@ func (sc *SimpleContract) SuperviserRegistration(ctx contractapi.TransactionCont
 	sup := Superviser{
 		Id:             id,
 		Name:           name,
-		State:          true,
+		State:          ACCOUNT_STATE_VALID,
 		Remakes:        remarks,
-		LastUpdateTime: string(rune(time.Now().Unix())),
+		LastUpdateTime: strconv.FormatInt(time.Now().Unix(), 10),
 	}
 
 	// sup struct to string
@@ -197,7 +220,7 @@ func (sc *SimpleContract) SuperviserRegistration(ctx contractapi.TransactionCont
 	return nil
 }
 
-// CustormerRegistration defines functions which used for new customer registration.
+// CustormerRegistration 消费者身份注册.
 func (sc *SimpleContract) CustormerRegistration(ctx contractapi.TransactionContextInterface,
 	id string) error {
 
@@ -220,7 +243,7 @@ func (sc *SimpleContract) CustormerRegistration(ctx contractapi.TransactionConte
 		Balance:         0,
 		Currency:        CURRENCY_RMB,
 		State:           ACCOUNT_STATE_VALID,
-		LastUpdateTime:  string(rune(time.Now().Unix())),
+		LastUpdateTime:  strconv.FormatInt(time.Now().Unix(), 10),
 	}
 	// cus struct to string
 	cusjson, err := json.Marshal(cus)
@@ -235,9 +258,7 @@ func (sc *SimpleContract) CustormerRegistration(ctx contractapi.TransactionConte
 	return nil
 }
 
-// BussinessRegistration defines functions which used for new customer registration.
-// The design of Bussiness and Customer data storage structure is very similar, and the registration method is
-// very similar too. However, it is still disassembled into two methods to facilitate adding functions later.
+// BussinessRegistration  商家身份注册
 func (sc *SimpleContract) BussinessRegistration(ctx contractapi.TransactionContextInterface, id string) error {
 
 	if !strings.HasPrefix(id, PREFIX_ID_BUSSINIESSMAN) {
@@ -260,7 +281,7 @@ func (sc *SimpleContract) BussinessRegistration(ctx contractapi.TransactionConte
 		Balance:         0,
 		Currency:        CURRENCY_RMB,
 		State:           ACCOUNT_STATE_VALID,
-		LastUpdateTime:  string(rune(time.Now().Unix())),
+		LastUpdateTime:  strconv.FormatInt(time.Now().Unix(), 10),
 	}
 
 	// bus struct to string
@@ -275,6 +296,32 @@ func (sc *SimpleContract) BussinessRegistration(ctx contractapi.TransactionConte
 		return errors.New(ERROR_CODE_PUTCHAINFAILED)
 	}
 	return nil
+}
+
+// CommodityOnSale  商品待售操作
+// cid: commodityId
+func (sc *SimpleContract) CommodityOnSale(ctx contractapi.TransactionContextInterface,
+	cid string, name string, price int64, currency string, issuerid string, remarks string) error {
+
+	// 商家身份检查
+	err, valid := sc.BussinessIdentityCheck(ctx, issuerid)
+	if !valid {
+		return err
+	}
+	if !strings.HasPrefix(cid, PREFIX_ID_COMMIDITY) {
+		return errors.New(ERROR_CODE_ILLEGALID)
+	}
+
+	err, valid = sc.idUniquenessCheck(ctx, cid)
+	if valid {
+		// TODO: 链上没有该商品的数据
+
+	} else {
+		// TODO:链上有该商品的数据
+
+	}
+	return nil
+
 }
 
 // Create adds a new key with value to the world state
