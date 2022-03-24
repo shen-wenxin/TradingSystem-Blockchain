@@ -1,6 +1,6 @@
 # Writing your first Application
 
-# Application
+## Application
 
 应用程序可以通过向账本提交交易或查询账本内容来与区块链网络进行交互。
 
