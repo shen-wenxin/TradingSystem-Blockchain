@@ -1,6 +1,6 @@
 # Writing your first Application
 
-# Application
+## Application
 
 应用程序可以通过向账本提交交易或查询账本内容来与区块链网络进行交互。
 
@@ -179,6 +179,7 @@ await contract.submitTransaction('CreateAsset', 'asset13', 'yellow', '5', 'Tom',
 console.log('*** Result: committed');
 ```
 
-### A closer look
-
-Application 首先需要从fabric-network模块引入两个关键类。wallet和
+### clean up
+```jsx
+./network.sh down
+```
