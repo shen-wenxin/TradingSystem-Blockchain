@@ -4,7 +4,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+import com.example.tradingSystem.common.Status;
 import com.example.tradingSystem.domain.User.Superviser;
+import com.example.tradingSystem.web.exception.BussinessException;
 
 
 @RestController
@@ -20,6 +22,8 @@ public class SuperviserController {
     @GetMapping("/getAll")
     public List<Superviser> getSuperviserList(){
         List<Superviser> superviserList = new ArrayList<Superviser>(supervisers.values());
+
+
         return superviserList;
     }
 
@@ -29,8 +33,17 @@ public class SuperviserController {
     @PostMapping("/register")
     public String registerSuperviser(@RequestBody Superviser superviser){
         // @RequestBody注解用来绑定通过http请求中application/json类型上传的数据
-        supervisers.put(superviser.getId(), superviser);
-        return "success" ;
+        String id = superviser.getId();
+        String name = superviser.getName();
+        String remarks = superviser.getRemarks();
+        //判断id 不为空
+        if (id.isEmpty()){
+            throw new BussinessException(Status.ACCOUNT_NOT_EXIST.code());
+        }else{
+            return "success" ;
+        }
+    
+        
     }
 
     /**
