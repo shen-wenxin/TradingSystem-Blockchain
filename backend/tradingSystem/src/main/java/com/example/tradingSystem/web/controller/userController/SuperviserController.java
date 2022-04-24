@@ -1,14 +1,20 @@
-package com.example.tradingSystem.web.UserController;
+package com.example.tradingSystem.web.controller.userController;
 
+import org.hyperledger.fabric.gateway.Contract;
 import org.springframework.web.bind.annotation.*;
+
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
+import com.example.tradingSystem.TradingSystemApplication;
+import com.example.tradingSystem.common.Constant;
 import com.example.tradingSystem.common.Status;
 import com.example.tradingSystem.domain.User.Superviser;
 import com.example.tradingSystem.web.exception.BussinessException;
+import com.example.tradingSystem.web.exception.JsonResult;
 
-
+@Slf4j
 @RestController
 @RequestMapping(value = "/users/superviser")     // 通过这里配置使下面的映射都在/users下
 public class SuperviserController {
@@ -31,20 +37,39 @@ public class SuperviserController {
      * 处理/users/superviser/register 的post请求，用来创建superviser
      */
     @PostMapping("/register")
-    public String registerSuperviser(@RequestBody Superviser superviser){
+    public JsonResult registerSuperviser(@RequestBody Superviser superviser) throws Exception{
         // @RequestBody注解用来绑定通过http请求中application/json类型上传的数据
-        String id = superviser.getId();
-        String name = superviser.getName();
-        String remarks = superviser.getRemarks();
-        //判断id 不为空
-        if (id.isEmpty()){
-            throw new BussinessException(Status.ACCOUNT_NOT_EXIST.code());
-        }else{
-            return "success" ;
+        try {
+            log.info("Begin to superviser register");
+            String id = superviser.getId();
+            String name = superviser.getName();
+            String remarks = superviser.getRemarks();
+            //id 不空判断
+            if(id.isEmpty()){
+                throw new BussinessException(Status.FAIL_INVALID_PARAM.code());
+            }
+            //id 加入SuperViser的前缀
+            id = Constant.PREFIX_ID_SUPERVISER + id;
+
+            //调用链代码，完成注册
+            log.info("[Fabric]Submit Transaction: SuperviserRegistration");
+            Contract contract = TradingSystemApplication.getContract();
+            contract.submitTransaction("SuperviserRegistration", id, name, remarks);
+            // 注册成功
+            JsonResult JsonResult = new JsonResult();
+		    JsonResult.success();
+		    return JsonResult;  
+
+        }catch (Exception e){
+            log.info("superviser register failed.");
+            log.info(e.getMessage());
+            throw new BussinessException(Status.FAIL_OPERATION.code());
         }
-    
         
     }
+
+
+    
 
     /**
      * 处理/users/superviser/get/{id} 的get请求，用来获取url中id值的superviser信息

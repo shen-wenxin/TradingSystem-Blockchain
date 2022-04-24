@@ -20,7 +20,57 @@ import org.hyperledger.fabric.gateway.Network;
 import org.hyperledger.fabric.gateway.Wallet;
 import org.hyperledger.fabric.gateway.Wallets;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class FabricService {
+    // 连接Fabric网络
+
+    public Contract contract;
+    public FabricService() throws Exception{
+        // 当类的初始化的时候自动初始化配置
+        try{
+            InputStream inputStream = FabricService.class.getResourceAsStream("/fabric.config.properties");
+            Properties properties = new Properties();
+            properties.load(inputStream);
+
+            String networkConfigPath = properties.getProperty("networkConfigPath");
+            String channelName = properties.getProperty("channelName");
+            String contractName = properties.getProperty("contractName");
+
+            //使用org1中的user1初始化一个网关wallet账户用于连接网络
+
+            String certificatePath = properties.getProperty("certificatePath");
+            X509Certificate certificate = readX509Certificate(Paths.get(certificatePath));
+
+            String privateKeyPath = properties.getProperty("privateKeyPath");
+            PrivateKey privateKey = getPrivateKey(Paths.get(privateKeyPath));
+
+            Wallet wallet = Wallets.newInMemoryWallet();
+            wallet.put("user1",Identities.newX509Identity("Org1MSP",certificate,privateKey));
+
+            //根据connection.json 获取Fabric网络连接对象
+            Gateway.Builder builder = Gateway.createBuilder()
+            .identity(wallet, "user1")
+            .networkConfig(Paths.get(networkConfigPath));
+
+            //连接网关
+            Gateway gateway = builder.connect();
+            //获取通道
+            Network network = gateway.getNetwork(channelName);
+            //获取合约对象
+            contract = network.getContract(contractName);
+            log.info("Init Fabric Contract finished.");
+        }catch (Exception e){
+            log.error("Init Fabric Contract Failed,{}",e.getMessage());
+            e.printStackTrace();
+        }   
+    }
+
+    public Contract getContract(){
+        return contract;
+    }
+
     public static void connect() throws Exception{
         
         try {
@@ -115,6 +165,7 @@ public class FabricService {
 
     }
 
+    
     private static X509Certificate readX509Certificate(final Path certificatePath) throws IOException, CertificateException {
         try (Reader certificateReader = Files.newBufferedReader(certificatePath, StandardCharsets.UTF_8)) {
             return Identities.readX509Certificate(certificateReader);
