@@ -29,7 +29,8 @@ sdk install gradle 7.4.1
 ## 安装链代码
 
 ```jsx
-cd fabric-samples/asset-transfer-basic/chaincode-go
+#cd fabric-samples/asset-transfer-basic/chaincode-go
+cd fabric-samples/asset-transfer-basic/chaincode-my/contract
 ```
 
 为安装依赖项，请在asset-transfer-basic/chaincode-go 文件夹中输入
@@ -61,7 +62,8 @@ cd fabric-samples/test-network
 然后将链代码部署上去
 
 ```jsx
-./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go
+#./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go
+./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-my/contract -ccl go
 ```
 
 当部署成功后，会有以下显示：
