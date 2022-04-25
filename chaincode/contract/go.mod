@@ -1,8 +1,8 @@
-module htgithub.com/shen-wenxin/TradingSystem-Blockchain/chaincode/contract
+module chaincode/contract
 
 go 1.17
 
-require github.com/hyperledger/fabric-contract-api-go v1.1.1
+require github.com/hyperledger/fabric-contract-api-go v1.1.0
 
 require (
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
