@@ -37,7 +37,7 @@ cd fabric-samples/test-network
 将链代码部署
 
 ```
-./network.sh deployCC -ccn basic -ccp ../..//TradingSystem-Blockchain/chaincode/contract -ccl go
+./network.sh deployCC -ccn basic -ccp ../../TradingSystem-Blockchain/chaincode/contract -ccl go
 ```
 
 当部署成功后，会有以下提示：
