@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -132,7 +133,7 @@ const (
 // 错误码定义
 const (
 	ERROR_CODE_MARSHAL        = "E0001"
-	ERROR_CODE_ILLEGALID      = "E0002"
+	ERROR_CODE_ILLEGALID      = "E0002" // 数据不合法
 	ERROR_CODE_GETCHAINFAILED = "E0003"
 	ERROR_CODE_EXISTINGDATA   = "E0004"
 	ERROR_CODE_PUTCHAINFAILED = "E0005"
@@ -140,25 +141,17 @@ const (
 	ERROR_CODE_UNEXISTDATA    = "E0007" // 链上不存在数据
 )
 
-// Car describes basic details of what makes up a car
-type Car struct {
-	Make   string `json:"make"`
-	Model  string `json:"model"`
-	Colour string `json:"colour"`
-	Owner  string `json:"owner"`
-}
-
-// QueryResult structure used for handling result of query
-type QueryResult struct {
+// QueryResult structure used for handling result of query superviser
+type SuperviserQueryResult struct {
 	Key    string `json:"Key"`
-	Record *Car
+	Record *Superviser
 }
 
 // InitLedger adds a base set of cars to the ledger
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	// 定义最初始的管理员身份
 	supervisers := []Superviser{
-		{Id: PREFIX_ID_SUPERVISER + "admin", Name: "admin", State: ACCOUNT_STATE_VALID, Remakes: "init create", LastUpdateTime: strconv.FormatInt(time.Now().Unix(), 10)},
+		{Id: PREFIX_ID_SUPERVISER + strings.Repeat("0", 11), Name: "admin", State: ACCOUNT_STATE_VALID, Remakes: "init create", LastUpdateTime: strconv.FormatInt(time.Now().Unix(), 10)},
 	}
 
 	for _, superviser := range supervisers {
@@ -172,46 +165,11 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 	return nil
 }
 
-
-
-
-
-// CreateCar adds a new car to the world state with given details
-func (s *SmartContract) CreateCar(ctx contractapi.TransactionContextInterface, carNumber string, make string, model string, colour string, owner string) error {
-	car := Car{
-		Make:   make,
-		Model:  model,
-		Colour: colour,
-		Owner:  owner,
-	}
-
-	carAsBytes, _ := json.Marshal(car)
-
-	return ctx.GetStub().PutState(carNumber, carAsBytes)
-}
-
-// QueryCar returns the car stored in the world state with given id
-func (s *SmartContract) QueryCar(ctx contractapi.TransactionContextInterface, carNumber string) (*Car, error) {
-	carAsBytes, err := ctx.GetStub().GetState(carNumber)
-
-	if err != nil {
-		return nil, fmt.Errorf("Failed to read from world state. %s", err.Error())
-	}
-
-	if carAsBytes == nil {
-		return nil, fmt.Errorf("%s does not exist", carNumber)
-	}
-
-	car := new(Car)
-	_ = json.Unmarshal(carAsBytes, car)
-
-	return car, nil
-}
-
-// QueryAllCars returns all cars found in world state
-func (s *SmartContract) QueryAllCars(ctx contractapi.TransactionContextInterface) ([]QueryResult, error) {
-	startKey := ""
-	endKey := ""
+// Superviser
+// QueryAllSuperviser returns all cars found in world state
+func (s *SmartContract) QueryAllSuperviser(ctx contractapi.TransactionContextInterface) ([]SuperviserQueryResult, error) {
+	startKey := PREFIX_ID_SUPERVISER + strings.Repeat("0", 11)
+	endKey := PREFIX_ID_SUPERVISER + strings.Repeat("9", 11)
 
 	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
 
@@ -220,38 +178,93 @@ func (s *SmartContract) QueryAllCars(ctx contractapi.TransactionContextInterface
 	}
 	defer resultsIterator.Close()
 
-	results := []QueryResult{}
+	results := []SuperviserQueryResult{}
 
 	for resultsIterator.HasNext() {
 		queryResponse, err := resultsIterator.Next()
+		key := queryResponse.Key
+		if strings.HasPrefix(key, PREFIX_ID_SUPERVISER) {
+			if err != nil {
+				return nil, err
+			}
+			superviser := new(Superviser)
+			_ = json.Unmarshal(queryResponse.Value, superviser)
 
-		if err != nil {
-			return nil, err
+			queryResult := SuperviserQueryResult{Key: queryResponse.Key, Record: superviser}
+			results = append(results, queryResult)
 		}
-
-		car := new(Car)
-		_ = json.Unmarshal(queryResponse.Value, car)
-
-		queryResult := QueryResult{Key: queryResponse.Key, Record: car}
-		results = append(results, queryResult)
 	}
-
 	return results, nil
 }
 
-// ChangeCarOwner updates the owner field of car with given id in world state
-func (s *SmartContract) ChangeCarOwner(ctx contractapi.TransactionContextInterface, carNumber string, newOwner string) error {
-	car, err := s.QueryCar(ctx, carNumber)
+// Creare Superviser add a new superviser to the world state with given details
+func (s *SmartContract) CreateSuperviser(ctx contractapi.TransactionContextInterface, id string, name string, remarks string) error {
+
+	if !strings.HasPrefix(id, PREFIX_ID_SUPERVISER) {
+		return fmt.Errorf(ERROR_CODE_ILLEGALID)
+	}
+	superviser := Superviser{
+		Id:             id,
+		Name:           name,
+		State:          ACCOUNT_STATE_VALID,
+		Remakes:        remarks,
+		LastUpdateTime: strconv.FormatInt(time.Now().Unix(), 10),
+	}
+
+	superviserAsBytes, _ := json.Marshal(superviser)
+	return ctx.GetStub().PutState(superviser.Id, superviserAsBytes)
+
+}
+
+// QuerySuperviser returns the superviser stored in the world state with given id
+func (s *SmartContract) QuerySuperviser(ctx contractapi.TransactionContextInterface, id string) (*Superviser, error) {
+
+	if !strings.HasPrefix(id, PREFIX_ID_SUPERVISER) {
+		return nil, fmt.Errorf(ERROR_CODE_ILLEGALID)
+	}
+
+	superviserAsBytes, err := ctx.GetStub().GetState(id)
+
+	if err != nil {
+		return nil, fmt.Errorf(ERROR_CODE_UNEXISTDATA)
+	}
+
+	if superviserAsBytes == nil {
+		return nil, fmt.Errorf(ERROR_CODE_UNEXISTDATA)
+	}
+
+	superviser := new(Superviser)
+	_ = json.Unmarshal(superviserAsBytes, superviser)
+
+	return superviser, nil
+}
+
+// ChangeSuperviserName updates the name field of superviser with given id in the world state
+func (s *SmartContract) ChangeSuperviserName(ctx contractapi.TransactionContextInterface, id string, newname string) error {
+
+	superviser, err := s.QuerySuperviser(ctx, id)
 
 	if err != nil {
 		return err
 	}
+	if superviser.State == ACCOUNT_STATE_INVALID {
+		return fmt.Errorf(ERROR_CODE_USERINVALID)
+	}
 
-	car.Owner = newOwner
+	superviser.Name = newname
+	superviser.LastUpdateTime = strconv.FormatInt(time.Now().Unix(), 10)
 
-	carAsBytes, _ := json.Marshal(car)
+	superviserAsBytes, _ := json.Marshal(superviser)
 
-	return ctx.GetStub().PutState(carNumber, carAsBytes)
+	return ctx.GetStub().PutState(superviser.Id, superviserAsBytes)
+}
+
+// DeleteSuperviser delete the superviser with the id given in world state
+func (s *SmartContract) DeleteSuperviser(ctx contractapi.TransactionContextInterface, id string) error {
+	if !strings.HasPrefix(id, PREFIX_ID_SUPERVISER) {
+		return fmt.Errorf(ERROR_CODE_ILLEGALID)
+	}
+	return ctx.GetStub().DelState(id)
 }
 
 func main() {
