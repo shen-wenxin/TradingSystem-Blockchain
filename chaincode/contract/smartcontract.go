@@ -134,8 +134,8 @@ const (
 const (
 	ERROR_CODE_MARSHAL        = "E0001"
 	ERROR_CODE_ILLEGALID      = "E0002" // 数据不合法
-	ERROR_CODE_GETCHAINFAILED = "E0003"
-	ERROR_CODE_EXISTINGDATA   = "E0004"
+	ERROR_CODE_GETCHAINFAILED = "E0003" // 查询链上数据失败
+	ERROR_CODE_EXISTINGDATA   = "E0004" // 链上已存在数据
 	ERROR_CODE_PUTCHAINFAILED = "E0005"
 	ERROR_CODE_USERINVALID    = "E0006" //用户不合法
 	ERROR_CODE_UNEXISTDATA    = "E0007" // 链上不存在数据
@@ -163,6 +163,22 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 
 	}
 	return nil
+}
+
+// idOnChainCheck check if the id has been used as the key on blockchain
+func (s *SmartContract) idOnChainCheck(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
+
+	superviserAsBytes, err := ctx.GetStub().GetState(id)
+
+	if err != nil {
+		return true, fmt.Errorf(ERROR_CODE_GETCHAINFAILED)
+	}
+
+	if superviserAsBytes == nil {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 // Superviser
@@ -203,6 +219,15 @@ func (s *SmartContract) CreateSuperviser(ctx contractapi.TransactionContextInter
 	if !strings.HasPrefix(id, PREFIX_ID_SUPERVISER) {
 		return fmt.Errorf(ERROR_CODE_ILLEGALID)
 	}
+	// 在create 之前 判断id 值是否已经被使用
+	flag, err := s.idOnChainCheck(ctx, id)
+	if err != nil {
+		return fmt.Errorf(ERROR_CODE_GETCHAINFAILED)
+	}
+	if flag {
+		return fmt.Errorf(ERROR_CODE_EXISTINGDATA)
+	}
+
 	superviser := Superviser{
 		Id:             id,
 		Name:           name,
@@ -226,7 +251,7 @@ func (s *SmartContract) QuerySuperviser(ctx contractapi.TransactionContextInterf
 	superviserAsBytes, err := ctx.GetStub().GetState(id)
 
 	if err != nil {
-		return nil, fmt.Errorf(ERROR_CODE_UNEXISTDATA)
+		return nil, fmt.Errorf(ERROR_CODE_GETCHAINFAILED)
 	}
 
 	if superviserAsBytes == nil {
