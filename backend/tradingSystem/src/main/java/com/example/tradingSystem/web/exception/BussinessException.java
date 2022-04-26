@@ -30,6 +30,12 @@ public class BussinessException extends RuntimeException {
         this.msg = msg;
     }
 
+    public BussinessException(int code, String msg){
+        super(msg);
+        this.code = code;
+        this.msg = msg;
+    }
+
     public BussinessException(String msg, Throwable e) {
         super(msg, e);
         this.code = Status.FAIL_EXCEPTION.code();

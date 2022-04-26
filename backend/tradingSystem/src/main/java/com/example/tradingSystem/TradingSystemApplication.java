@@ -77,13 +77,8 @@ public class TradingSystemApplication {
 		fService = new FabricService();
 	}
 
-	public FabricService getFabricService(){
+	public static FabricService getFabricService(){
 		return fService;
 	}
-
-	public static Contract getContract(){
-		return fService.getContract();
-	}
-
 
 }

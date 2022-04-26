@@ -78,7 +78,9 @@ public enum Status {
 
     REPEAT_SUBMIT_ERROR(10029, "重复请求，请稍后再试"),
 
-    JOB_ERROR(10028, "执行定时任务出错");
+    JOB_ERROR(10028, "执行定时任务出错"),
+
+    BLOCKCHAIN_SERVICE_FAILED(11000, "区块链服务异常");
 
     private int code;
     private String message;
