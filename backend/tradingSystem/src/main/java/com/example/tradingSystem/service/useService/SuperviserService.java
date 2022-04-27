@@ -1,4 +1,4 @@
-package com.example.tradingSystem.service;
+package com.example.tradingSystem.service.useService;
 
 import com.example.tradingSystem.TradingSystemApplication;
 import com.example.tradingSystem.common.Constant;
@@ -16,7 +16,7 @@ public class SuperviserService {
 
     public static JsonResult getSuperviserListOnChain(){
         try{
-            log.info("Begin to query all supervisers.");
+            log.info("Begin to query all supervisers on chain.");
 
             log.info("[Fabric]Evaluate Transaction: QueryAllSuperviser");
             Contract contract = TradingSystemApplication.getFabricService().getContract();
@@ -91,7 +91,7 @@ public class SuperviserService {
     }
 
     public static JsonResult deleteSuperviserOnChain(String id){
-        // url 中的 id 可以通过@PathVariable 绑定到函数中
+        
         log.info("Begin to delete superviser. id: " + id);
         if (id.isEmpty()){
             log.error("id cannot be null.");

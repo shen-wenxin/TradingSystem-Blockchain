@@ -5,8 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import lombok.extern.slf4j.Slf4j;
 import com.example.tradingSystem.domain.User.Superviser;
-import com.example.tradingSystem.service.SuperviserService;
-
+import com.example.tradingSystem.service.useService.SuperviserService;
 import com.example.tradingSystem.web.exception.JsonResult;
 
 @Slf4j

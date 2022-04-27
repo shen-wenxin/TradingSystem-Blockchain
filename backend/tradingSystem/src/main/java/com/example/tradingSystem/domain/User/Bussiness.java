@@ -10,6 +10,12 @@ public class Bussiness {
     // 商户id 全局唯一
     private String accountId;
 
+    // 商户名称
+    private String name;
+
+    // 商户联系方式
+    private String phone;
+
     // 商品Id list
     private List<String> commodityIdList;
 

@@ -5,10 +5,18 @@ package com.example.tradingSystem.domain.User;
 import java.util.List;
 
 import lombok.Data;
+
+@Data
 public class Customer {
 
     // 消费者ID 全局唯一
     private String accountId;
+
+    // 监管机构名称
+    private String name;
+
+    // 电话号码
+    private String phone;
 
     // 优惠卷id List
     private List<String> discountList;
