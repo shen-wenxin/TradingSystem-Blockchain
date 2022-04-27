@@ -96,3 +96,12 @@ func (s *SmartContract) QueryCustomer(ctx contractapi.TransactionContextInterfac
 
 	return customer, nil
 }
+
+// DeleteCustomer delete the customer with the id given in world state
+func (s *SmartContract) DeleteCustomer(ctx contractapi.TransactionContextInterface, id string) error {
+	if !strings.HasPrefix(id, PREFIX_ID_CUSTOMER) {
+		return fmt.Errorf(ERROR_CODE_ILLEGALID)
+	}
+	return ctx.GetStub().DelState(id)
+
+}
