@@ -43,7 +43,7 @@ func (s *SmartContract) QueryAllCustomer(ctx contractapi.TransactionContextInter
 }
 
 // Creare Superviser add a new superviser to the world state with given details
-func (s *SmartContract) CreateCustomer(ctx contractapi.TransactionContextInterface, id string, name string) error {
+func (s *SmartContract) CreateCustomer(ctx contractapi.TransactionContextInterface, id string, name string, phone string) error {
 
 	if !strings.HasPrefix(id, PREFIX_ID_CUSTOMER) {
 		return fmt.Errorf(ERROR_CODE_ILLEGALID)
@@ -60,6 +60,7 @@ func (s *SmartContract) CreateCustomer(ctx contractapi.TransactionContextInterfa
 	customer := Customer{
 		AccountId:       id,
 		Name:            name,
+		Phone:           phone,
 		DiscountList:    []string{},
 		CommodityIdList: []string{},
 		Balance:         0,
@@ -71,4 +72,27 @@ func (s *SmartContract) CreateCustomer(ctx contractapi.TransactionContextInterfa
 	customerAsBytes, _ := json.Marshal(customer)
 	return ctx.GetStub().PutState(customer.AccountId, customerAsBytes)
 
+}
+
+// QueryCustomer returns the Customer stored in the world state with given id
+func (s *SmartContract) QueryCustomer(ctx contractapi.TransactionContextInterface, id string) (*Customer, error) {
+
+	if !strings.HasPrefix(id, PREFIX_ID_CUSTOMER) {
+		return nil, fmt.Errorf(ERROR_CODE_ILLEGALID)
+	}
+
+	customerAsBytes, err := ctx.GetStub().GetState(id)
+
+	if err != nil {
+		return nil, fmt.Errorf(ERROR_CODE_GETCHAINFAILED)
+	}
+
+	if customerAsBytes == nil {
+		return nil, fmt.Errorf(ERROR_CODE_UNEXISTDATA)
+	}
+
+	customer := new(Customer)
+	_ = json.Unmarshal(customerAsBytes, customer)
+
+	return customer, nil
 }
