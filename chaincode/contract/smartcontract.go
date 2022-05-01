@@ -24,7 +24,7 @@ type Superviser struct {
 	Id             string `json:"id"`             //id号，全局唯一
 	Name           string `json:"name"`           //名字
 	State          bool   `json:"state"`          // 账号状态
-	Remakes        string `json:"remakes"`        // 备注
+	Remarks        string `json:"remarks"`        // 备注
 	LastUpdateTime string `json:"lastUpdateTime"` //最近更新时间
 }
 
@@ -42,7 +42,7 @@ type Customer struct {
 }
 
 // t_bussiness_account
-type Bussiness struct {
+type Business struct {
 	AccountId       string   `json:"accountId"`       // Id号，全局唯一
 	Name            string   `json:"name"`            // 名字
 	Phone           string   `json:"phone"`           // 商家联系方式
@@ -157,11 +157,17 @@ type CustomerQueryResult struct {
 	Record *Customer
 }
 
+// QueryResult stucture used for handling result of query bussinessman
+type BussinessQueryResult struct {
+	Key    string `json:"Key"`
+	Record *Business
+}
+
 // InitLedger adds a base set of cars to the ledger
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
 	// 定义最初始的管理员身份
 	supervisers := []Superviser{
-		{Id: PREFIX_ID_SUPERVISER + strings.Repeat("0", 11), Name: "admin", State: ACCOUNT_STATE_VALID, Remakes: "init create", LastUpdateTime: strconv.FormatInt(time.Now().Unix(), 10)},
+		{Id: PREFIX_ID_SUPERVISER + strings.Repeat("0", 11), Name: "admin", State: ACCOUNT_STATE_VALID, Remarks: "init create", LastUpdateTime: strconv.FormatInt(time.Now().Unix(), 10)},
 	}
 
 	for _, superviser := range supervisers {

@@ -61,7 +61,7 @@ func (s *SmartContract) CreateSuperviser(ctx contractapi.TransactionContextInter
 		Id:             id,
 		Name:           name,
 		State:          ACCOUNT_STATE_VALID,
-		Remakes:        remarks,
+		Remarks:        remarks,
 		LastUpdateTime: strconv.FormatInt(time.Now().Unix(), 10),
 	}
 
