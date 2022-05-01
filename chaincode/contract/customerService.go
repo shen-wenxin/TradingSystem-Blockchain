@@ -1,4 +1,4 @@
-C
+package main
 
 import (
 	"encoding/json"
@@ -65,7 +65,7 @@ func (s *SmartContract) CreateCustomer(ctx contractapi.TransactionContextInterfa
 		CommodityIdList: []string{},
 		Balance:         0,
 		Currency:        CURRENCY_RMB,
-		State:           ACCOUNT_STATE_VALID,
+		State:           ACCOUNT_STATE_INVALID,
 		LastUpdateTime:  strconv.FormatInt(time.Now().Unix(), 10),
 	}
 

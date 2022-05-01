@@ -60,7 +60,7 @@ func (s *SmartContract) CreateSuperviser(ctx contractapi.TransactionContextInter
 	superviser := Superviser{
 		Id:             id,
 		Name:           name,
-		State:          ACCOUNT_STATE_VALID,
+		State:          ACCOUNT_STATE_INVALID,
 		Remarks:        remarks,
 		LastUpdateTime: strconv.FormatInt(time.Now().Unix(), 10),
 	}
