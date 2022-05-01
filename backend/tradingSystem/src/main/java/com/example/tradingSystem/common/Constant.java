@@ -11,6 +11,15 @@ public class Constant {
 
     public static final String PREFIX_ID_SUPERVISER = "0003"; // 管理者id 前缀
 
+    // role Type
+    public static final Integer ROLE_TYPE_SUPERVISER = 1;
+
+    public static final Integer ROLE_TYPE_BUSSINESS = 2;
+
+    public static final Integer ROLE_TYPE_CUSTOMER = 3;
+
+
+
 
 
 

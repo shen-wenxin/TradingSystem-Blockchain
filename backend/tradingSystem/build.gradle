@@ -17,6 +17,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.hyperledger.fabric:fabric-gateway-java:2.2.0'
 	implementation 'com.spring4all:swagger-spring-boot-starter:1.9.0.RELEASE'
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2'
+	implementation 'com.alibaba:fastjson:2.0.1'
+	implementation 'mysql:mysql-connector-java:8.0.29'
+	implementation 'com.auth0:java-jwt:3.19.1'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	
 }

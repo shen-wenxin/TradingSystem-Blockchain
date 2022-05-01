@@ -1,7 +1,7 @@
-package com.example.tradingSystem.web.controller.userController;
+package com.example.tradingSystem.web.controller.user;
 
 import com.example.tradingSystem.domain.User.Customer;
-import com.example.tradingSystem.service.useService.CustomerService;
+import com.example.tradingSystem.service.user.CustomerService;
 import com.example.tradingSystem.web.exception.JsonResult;
 
 import org.springframework.web.bind.annotation.DeleteMapping;

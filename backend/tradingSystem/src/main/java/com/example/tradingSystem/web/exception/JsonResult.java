@@ -29,6 +29,9 @@ public class JsonResult<T> implements Serializable {
      */
     @ApiModelProperty(value = "返回数据对象")
     private T data;
+
+    @ApiModelProperty(value = "成功")
+    private boolean success = true;
     /**
      * 时间戳
      */
@@ -50,24 +53,28 @@ public class JsonResult<T> implements Serializable {
         return this;
     }
     public JsonResult<T> error() {
+        this.success = false;
         this.code = Status.FAIL_EXCEPTION.code();
         this.msg = Status.getMessage(this.code);
         return this;
     }
 
     public JsonResult<T> error(int code) {
+        this.success = false;
         this.code = code;
         this.msg = Status.getMessage(this.code);
         return this;
     }
 
     public JsonResult<T> error(int code, String msg) {
+        this.success = false;
         this.code = code;
         this.msg = msg;
         return this;
     }
 
     public JsonResult<T> error(String msg) {
+        this.success = false;
         this.code = Status.FAIL_EXCEPTION.code();
         this.msg = msg;
         return this;
