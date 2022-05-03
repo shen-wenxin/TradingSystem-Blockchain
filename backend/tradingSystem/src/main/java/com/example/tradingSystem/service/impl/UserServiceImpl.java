@@ -5,7 +5,7 @@ import java.util.List;
 import com.example.tradingSystem.domain.User.Superviser;
 import com.example.tradingSystem.domain.User.User;
 import com.example.tradingSystem.entry.user.UserMapper;
-import com.example.tradingSystem.service.user.UserService;
+import com.example.tradingSystem.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.example.tradingSystem.service.user;
+package com.example.tradingSystem.service;
 
 
 import java.util.List;

@@ -5,7 +5,7 @@ import lombok.Data;
 
 
 @Data
-public class Bussiness {
+public class Business {
 
     // 商户id 全局唯一
     private String accountId;

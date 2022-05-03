@@ -18,6 +18,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson2.JSON;
 import com.example.tradingSystem.common.Constant;
 import com.example.tradingSystem.common.Status;
+import com.example.tradingSystem.domain.User.Business;
 import com.example.tradingSystem.domain.User.Customer;
 import com.example.tradingSystem.domain.User.Superviser;
 import com.example.tradingSystem.web.exception.BussinessException;
@@ -118,17 +119,34 @@ public class BlockChainMapperImpl implements BlockChainMapper{
     }
 
     @Override
+    public Boolean createSuperviser(String acount, String name, String phone){
+        if (acount.isEmpty() || name.isEmpty()){
+            log.error("id or name cannot be null.");
+            throw new BussinessException(Status.FAIL_INVALID_PARAM.code());
+        }
+        String id = Constant.PREFIX_ID_SUPERVISER + acount;
+        try{
+            contract.submitTransaction("CreateSuperviser", id, name, phone);
+            log.info("[Fabric]createSuperviser Succeed.");
+            return true;
+        } catch (Exception e){
+            log.error("[BlockChainMapperImpl]createSuperviser falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+        }
+
+    }
+
+
+    /*Customer */
+    @Override
     public Customer getCustomer(String id) {
-        log.info("Begin to get customer details from blockchain. id: " + id);
         if (id.isEmpty()){
             log.error("id cannot be null.");
             throw new BussinessException(Status.FAIL_INVALID_PARAM.code());
         }
         // id 加入Customer 的前缀
         id = Constant.PREFIX_ID_CUSTOMER + id;
-
         try{
-            log.info("[Fabric]Evaluate Transaction: QueryCustomer");
             String result = new String(this.contract.evaluateTransaction("QueryCustomer", id));
             log.info("[Fabric]QueryCustomer Succeed.");
             Customer cus = JSON.parseObject(result, Customer.class);
@@ -139,6 +157,87 @@ public class BlockChainMapperImpl implements BlockChainMapper{
             throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
         }
     }
+
+
+    @Override
+    public Boolean createCustomer(String id, String name, String phone) {
+        if (id.isEmpty() || name.isEmpty()){
+            log.error("id or name cannot be null.");
+            throw new BussinessException(Status.FAIL_INVALID_PARAM.code());
+        }
+        id = Constant.PREFIX_ID_CUSTOMER + id;
+        try{
+            contract.submitTransaction("CreateCustomer", id, name, phone);
+            log.info("[Fabric]createCustomer Succeed.");
+            return true;
+        } catch (Exception e){
+            log.error("[BlockChainMapperImpl]createCustomer falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+        }
+    }
+
+
+    @Override
+    public Business getBusiness(String id) {
+        if (id.isEmpty()){
+            log.error("id cannot be null.");
+            throw new BussinessException(Status.FAIL_INVALID_PARAM.code());
+        }
+        // id 加入Business 的前缀
+        id = Constant.PREFIX_ID_BUSSINIESSMAN + id;
+        try{
+            String result = new String(this.contract.evaluateTransaction("QueryBusiness", id));
+            log.info("[Fabric]QueryBusiness Succeed.");
+            Business bus = JSON.parseObject(result, Business.class);
+            log.info("[BlockChainMapperImpl]Parse string to Business object succeed.");
+            return bus;
+        } catch (Exception e){
+            log.error("[BlockChainMapperImpl]QueryBusiness falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+
+        }
+    }
+
+    @Override
+    public Boolean createBusiness(String id, String name, String phone) {
+        if (id.isEmpty() || name.isEmpty()){
+            log.error("id and name cannot be null");
+            throw new BussinessException(Status.FAIL_INVALID_PARAM.code());
+        }
+        // 加入Business 前缀
+        id = Constant.PREFIX_ID_BUSSINIESSMAN + id;
+        try{
+            contract.submitTransaction("CreateBusiness", id, name, phone);
+            log.info("[Fabric]createBusiness Succeed.");
+            return true;
+        } catch (Exception e){
+            log.error("[BlockChainMapperImpl]createBusiness falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+        }
+    }
+
+    @Override
+    public Boolean DataOnChainCheck(String id) {
+        try{
+            String result = new String(this.contract.evaluateTransaction("DataOnChainCheck", id));
+            log.info("[Fabric]DataOnChainCheck Succeed.result: {}",result);
+            if (result.equals("false")){
+                return false;
+            }
+            return true;
+            
+        } catch (Exception e){
+            log.error("[BlockChainMapperImpl]DataOnChainCheck falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+
+        }
+    }
+
+    
+
+    
+
+   
 
    
 

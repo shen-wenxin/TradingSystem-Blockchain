@@ -80,7 +80,9 @@ public enum Status {
 
     JOB_ERROR(10028, "执行定时任务出错"),
 
-    BLOCKCHAIN_SERVICE_FAILED(11000, "区块链服务异常");
+    BLOCKCHAIN_SERVICE_FAILED(11000, "区块链服务异常"),
+
+    USER_DATA_EXIST(11001, "用户数据已存在");
 
     private int code;
     private String message;

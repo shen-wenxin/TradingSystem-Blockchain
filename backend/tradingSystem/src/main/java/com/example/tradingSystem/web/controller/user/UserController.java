@@ -5,9 +5,9 @@ import com.example.tradingSystem.common.Constant;
 import com.example.tradingSystem.common.Status;
 import com.example.tradingSystem.domain.User.Superviser;
 import com.example.tradingSystem.domain.User.User;
+import com.example.tradingSystem.service.BlockChainService;
 import com.example.tradingSystem.service.TokenService;
-import com.example.tradingSystem.service.user.SuperviserService;
-import com.example.tradingSystem.service.user.UserService;
+import com.example.tradingSystem.service.UserService;
 import com.example.tradingSystem.web.exception.BussinessException;
 import com.example.tradingSystem.web.exception.JsonResult;
 
@@ -35,7 +35,8 @@ public class UserController {
     private TokenService tokenService;
 
     @Autowired
-    private SuperviserService superviserService;
+    private BlockChainService blockchainService;
+
 
     // 注册
     @PostMapping("/register")
@@ -43,9 +44,13 @@ public class UserController {
         log.info("[REGISTER]Begin to register.");
 
         String account = user.getAccount();
+        log.info("account : {}", account);
         String name = user.getName();
+        log.info("name : {}", name);
         String password = user.getPassword();
+        log.info("password : {}", password);
         Integer role = user.getRole();
+        log.info("role : {}",role);
 
         // 判断参数是否为空
         if (account.isEmpty() || name.isEmpty() || password.isEmpty() || role == null){
@@ -57,20 +62,30 @@ public class UserController {
         User userBase = userService.getUser(account);
         if (userBase != null){
             log.debug("[REGISTER] user is exist");
+            throw new BussinessException(Status.USER_DATA_EXIST.code());
+        }
+       
+        // 判断区块链上是否已经有该用户的数据
+        if (blockchainService.userExist(account, role)){
+            log.debug("[REGISTER] user is exist");
+            throw new BussinessException(Status.USER_DATA_EXIST.code());
         }
 
-        // 判断区块链上是否已经有该用户的数据
-        
+        // 链上数据注册
+        Boolean result = blockchainService.userRegister(user);
 
+        // mysql 数据库数据注册
+        userService.insertUser(user);
 
-
-
-
-
-
-
-
-
+        if (!result){
+            // failed
+            log.error("Register failed");
+            throw new BussinessException(Status.FAIL_OPERATION.code());
+        }else{
+            JsonResult res = new JsonResult();
+            res.success();
+            return res;
+        }
     }
     
     
@@ -111,7 +126,7 @@ public class UserController {
         log.info("account :{} role is {}", userData.getAccount(), userData.getRole());
         Integer role = userData.getRole();
         if (role == Constant.ROLE_TYPE_SUPERVISER){
-            Superviser sup = superviserService.getSuperviserOnChain(id);
+            Superviser sup = blockchainService.getSuperviserOnChain(id);
 
             JSONObject jsonObj = new JSONObject();
             jsonObj.put("role", Constant.ROLE_TYPE_SUPERVISER);
