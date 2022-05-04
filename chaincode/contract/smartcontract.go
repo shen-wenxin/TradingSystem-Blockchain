@@ -30,7 +30,7 @@ type Superviser struct {
 
 // t_customer_account
 type Customer struct {
-	AccountId       string   `json:"accountId"`       // Id号，全局唯一
+	Id              string   `json:"id"`              // Id号，全局唯一
 	Name            string   `json:"name"`            //名字
 	Phone           string   `json:"phone"`           // 消费者联系方式
 	DiscountList    []string `json:"discountList"`    // 优惠卷id表
@@ -43,7 +43,7 @@ type Customer struct {
 
 // t_bussiness_account
 type Business struct {
-	AccountId       string   `json:"accountId"`       // Id号，全局唯一
+	Id              string   `json:"id"`              // Id号，全局唯一
 	Name            string   `json:"name"`            // 名字
 	Phone           string   `json:"phone"`           // 商家联系方式
 	CommodityIdList []string `json:"commodityIdList"` // 商品表

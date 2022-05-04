@@ -58,7 +58,7 @@ func (s *SmartContract) CreateCustomer(ctx contractapi.TransactionContextInterfa
 	}
 
 	customer := Customer{
-		AccountId:       id,
+		Id:       id,
 		Name:            name,
 		Phone:           phone,
 		DiscountList:    []string{},
@@ -70,7 +70,7 @@ func (s *SmartContract) CreateCustomer(ctx contractapi.TransactionContextInterfa
 	}
 
 	customerAsBytes, _ := json.Marshal(customer)
-	return ctx.GetStub().PutState(customer.AccountId, customerAsBytes)
+	return ctx.GetStub().PutState(customer.Id, customerAsBytes)
 
 }
 

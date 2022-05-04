@@ -50,7 +50,7 @@ func (s *SmartContract) CreateBusiness(ctx contractapi.TransactionContextInterfa
 	}
 
 	business := Business{
-		AccountId:       id,
+		Id:              id,
 		Name:            name,
 		Phone:           phone,
 		CommodityIdList: []string{},
@@ -62,5 +62,5 @@ func (s *SmartContract) CreateBusiness(ctx contractapi.TransactionContextInterfa
 	}
 
 	businessAsBytes, _ := json.Marshal(business)
-	return ctx.GetStub().PutState(business.AccountId, businessAsBytes)
+	return ctx.GetStub().PutState(business.Id, businessAsBytes)
 }
