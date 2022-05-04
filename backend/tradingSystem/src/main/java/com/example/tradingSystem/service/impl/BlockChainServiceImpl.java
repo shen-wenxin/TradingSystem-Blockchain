@@ -2,6 +2,7 @@ package com.example.tradingSystem.service.impl;
 
 import java.util.List;
 
+import com.alibaba.fastjson.JSONObject;
 import com.example.tradingSystem.common.Constant;
 import com.example.tradingSystem.domain.User.Business;
 import com.example.tradingSystem.domain.User.Customer;
@@ -88,6 +89,26 @@ public class BlockChainServiceImpl implements BlockChainService{
         String name = user.getName();
         String phone = user.getAccount();
         return mapper.createCustomer(account, name, phone);
+    }
+
+    @Override
+    public JSONObject getUserInfoOnChain(String id, Integer role) {
+        JSONObject jsonObj = new JSONObject();
+        if (role ==  Constant.ROLE_TYPE_SUPERVISER){
+            Superviser sup = getSuperviserOnChain(id);
+            jsonObj.put("role", Constant.ROLE_TYPE_SUPERVISER);
+            jsonObj.put("user", sup);
+        }else if (role == Constant.ROLE_TYPE_BUSSINESS){
+            Business bus = getBussinessOnChain(id);
+            jsonObj.put("role", Constant.ROLE_TYPE_BUSSINESS);
+            jsonObj.put("user", bus);
+        }else if (role == Constant.ROLE_TYPE_CUSTOMER){
+            Customer cus = getCustomerOnChain(id);
+            jsonObj.put("role", Constant.ROLE_TYPE_CUSTOMER);
+            jsonObj.put("user", cus);
+        }
+        return jsonObj;
+   
     }
     
 }

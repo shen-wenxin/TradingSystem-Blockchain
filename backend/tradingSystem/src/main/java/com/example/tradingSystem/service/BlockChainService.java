@@ -1,5 +1,6 @@
 package com.example.tradingSystem.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.example.tradingSystem.domain.User.Business;
 import com.example.tradingSystem.domain.User.Customer;
 import com.example.tradingSystem.domain.User.Superviser;
@@ -18,8 +19,9 @@ public interface BlockChainService {
 
     // userController 
     Boolean userExist(String id, Integer role);
-
     Boolean userRegister(User user);
+    JSONObject getUserInfoOnChain(String id, Integer role);
+
     
 
 

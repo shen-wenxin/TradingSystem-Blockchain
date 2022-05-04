@@ -207,7 +207,7 @@ public class BlockChainMapperImpl implements BlockChainMapper{
         // 加入Business 前缀
         id = Constant.PREFIX_ID_BUSSINIESSMAN + id;
         try{
-            contract.submitTransaction("CreateBusiness", id, name, phone);
+            this.contract.submitTransaction("CreateBusiness", id, name, phone);
             log.info("[Fabric]createBusiness Succeed.");
             return true;
         } catch (Exception e){

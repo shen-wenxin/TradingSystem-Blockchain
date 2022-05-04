@@ -3,6 +3,8 @@ package com.example.tradingSystem.web.controller.user;
 import com.alibaba.fastjson.JSONObject;
 import com.example.tradingSystem.common.Constant;
 import com.example.tradingSystem.common.Status;
+import com.example.tradingSystem.domain.User.Business;
+import com.example.tradingSystem.domain.User.Customer;
 import com.example.tradingSystem.domain.User.Superviser;
 import com.example.tradingSystem.domain.User.User;
 import com.example.tradingSystem.service.BlockChainService;
@@ -124,22 +126,14 @@ public class UserController {
         log.info("[GETUSERINFO]Begin to get User Info");
         User userData = userService.getUser(id);
         log.info("account :{} role is {}", userData.getAccount(), userData.getRole());
+        
+        String account = userData.getAccount();
         Integer role = userData.getRole();
-        if (role == Constant.ROLE_TYPE_SUPERVISER){
-            Superviser sup = blockchainService.getSuperviserOnChain(id);
+        JSONObject jsonObj = blockchainService.getUserInfoOnChain(account, role);
 
-            JSONObject jsonObj = new JSONObject();
-            jsonObj.put("role", Constant.ROLE_TYPE_SUPERVISER);
-            jsonObj.put("user", sup);
-            JsonResult result = new JsonResult();
-            result.ok(jsonObj);
-            return result;
-
-        }else{
-            JsonResult result2 = new JsonResult();
-            result2.ok("error");
-            return result2;
-        }
+        JsonResult result = new JsonResult();
+        result.ok(jsonObj);
+        return result;
     }
 
 
