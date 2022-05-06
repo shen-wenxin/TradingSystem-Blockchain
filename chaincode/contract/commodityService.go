@@ -31,7 +31,7 @@ const (
 
 // QueryResult stucture used for handling result of query bussinessman
 func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterface,
-	id string, name string, price int, issuer string) error {
+	id string, name string, price string, issuer string) error {
 	if !strings.HasPrefix(id, PREFIX_ID_COMMODITY) {
 		return fmt.Errorf(ERROR_CODE_ILLEGALID)
 	}
@@ -46,10 +46,12 @@ func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterf
 		return fmt.Errorf(ERROR_CODE_EXISTINGDATA)
 	}
 
+	pri, err := strconv.Atoi(price)
+
 	commodity := Commmodity{
 		Id:             id,
 		Name:           name,
-		Price:          int64(price),
+		Price:          int64(pri),
 		Currency:       CURRENCY_RMB,
 		IssuerId:       issuer,
 		OwnerId:        "",
@@ -127,7 +129,7 @@ func (s *SmartContract) QueryCommodityById(ctx contractapi.TransactionContextInt
 	return commodity, nil
 }
 
-func (s *SmartContract) QueryAllCommodity(ctx contractapi.TransactionContextInterface, id string) ([]Commmodity, error) {
+func (s *SmartContract) QueryAllCommodity(ctx contractapi.TransactionContextInterface) ([]Commmodity, error) {
 	startKey := PREFIX_ID_COMMODITY + strings.Repeat("0", 11)
 	endKey := PREFIX_ID_COMMODITY + strings.Repeat("9", 11)
 
