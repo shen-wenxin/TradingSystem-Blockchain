@@ -10,6 +10,19 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
+// t_customer_account
+type Customer struct {
+	Id              string   `json:"id"`              // Id号，全局唯一
+	Name            string   `json:"name"`            //名字
+	Phone           string   `json:"phone"`           // 消费者联系方式
+	DiscountList    []string `json:"discountList"`    // 优惠卷id表
+	CommodityIdList []string `json:"commodityIdList"` //拥有商品id 表
+	Balance         int64    `json:"balance"`         // 余额
+	Currency        string   `json:"currency"`        //币种
+	State           bool     `json:"state"`           // 状态
+	LastUpdateTime  string   `json:"lastUpdateTime"`  // 最近更新时间
+}
+
 //============customer============
 // QueryAllSuperviser returns all Supervisers found in world state
 func (s *SmartContract) QueryAllCustomer(ctx contractapi.TransactionContextInterface) ([]CustomerQueryResult, error) {
@@ -58,7 +71,7 @@ func (s *SmartContract) CreateCustomer(ctx contractapi.TransactionContextInterfa
 	}
 
 	customer := Customer{
-		Id:       id,
+		Id:              id,
 		Name:            name,
 		Phone:           phone,
 		DiscountList:    []string{},

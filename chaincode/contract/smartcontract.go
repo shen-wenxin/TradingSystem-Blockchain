@@ -28,19 +28,6 @@ type Superviser struct {
 	LastUpdateTime string `json:"lastUpdateTime"` //最近更新时间
 }
 
-// t_customer_account
-type Customer struct {
-	Id              string   `json:"id"`              // Id号，全局唯一
-	Name            string   `json:"name"`            //名字
-	Phone           string   `json:"phone"`           // 消费者联系方式
-	DiscountList    []string `json:"discountList"`    // 优惠卷id表
-	CommodityIdList []string `json:"commodityIdList"` //拥有商品id 表
-	Balance         int64    `json:"balance"`         // 余额
-	Currency        string   `json:"currency"`        //币种
-	State           bool     `json:"state"`           // 状态
-	LastUpdateTime  string   `json:"lastUpdateTime"`  // 最近更新时间
-}
-
 // t_bussiness_account
 type Business struct {
 	Id              string   `json:"id"`              // Id号，全局唯一
@@ -52,19 +39,6 @@ type Business struct {
 	DiscountList    []string `json:"discountList"`    // 派发的优惠卷
 	State           bool     `json:"state"`           // 账户状态
 	LastUpdateTime  string   `json:"lastUpdateTime"`  // 最近更新时间
-}
-
-// t_commodity
-type Commmodity struct {
-	CommodityId string `json:"commodityId"` // 商品id
-	Name        string `json:"name"`        // 商品名称
-	Price       int64  `json:"price"`       //价格
-	Currency    string `json:"currency"`    // 币种
-	IssuerId    string `json:"issuerId"`    // 发行者id
-	OwnerId     string `json:"ownerId"`     // 所属人id
-	LastUpdate  string `json:"lastUpdate"`  // 最近更新时间
-	State       string `json:"state"`       // 状态
-	Remakes     string `json:"remakes"`     // 备注
 }
 
 // t_trade
@@ -124,7 +98,7 @@ const (
 const (
 	PREFIX_ID_CUSTOMER      = "0000"
 	PREFIX_ID_BUSSINIESSMAN = "0001"
-	PREFIX_ID_COMMIDITY     = "0002"
+	PREFIX_ID_COMMODITY     = "0002"
 	PREFIX_ID_SUPERVISER    = "0003"
 )
 
@@ -179,6 +153,17 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 
 	}
 	return nil
+}
+
+// 创建复合键并存储
+func (s *SmartContract) createCompositeKeyandSave(ctx contractapi.TransactionContextInterface,
+	indexName string, attributes []string) error {
+	indexKey, err := ctx.GetStub().CreateCompositeKey(indexName, attributes)
+	if err != nil {
+		return err
+	}
+	value := []byte{0x00}
+	return ctx.GetStub().PutState(indexKey, value)
 }
 
 // idOnChainCheck check if the id has been used as the key on blockchain
