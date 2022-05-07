@@ -24,9 +24,9 @@ type Commmodity struct {
 
 const (
 	STATE_ON_SALE     = "0000"
-	STATE_OFF_SALE    = "0002"
-	STATE_BE_BAUGHT   = "0003"
-	STATE_BE_RETURNED = "0004"
+	STATE_OFF_SALE    = "0001"
+	STATE_BE_BAUGHT   = "0002"
+	STATE_BE_RETURNED = "0003"
 )
 
 // QueryResult stucture used for handling result of query bussinessman
@@ -74,9 +74,13 @@ func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterf
 		return err
 	}
 
-	// 状态~id号复合键
 	err = s.createCompositeKeyandSave(ctx, "state~issuer~id", []string{commodity.State, commodity.IssuerId, commodity.Id})
-	if err != nil{
+	if err != nil {
+		return err
+	}
+
+	err = s.createCompositeKeyandSave(ctx, "state~id", []string{commodity.State, commodity.Id})
+	if err != nil {
 		return err
 	}
 
@@ -118,12 +122,12 @@ func (s *SmartContract) QueryCommodityByIssuer(ctx contractapi.TransactionContex
 func (s *SmartContract) QueryCommodityOnSaleByIssuer(ctx contractapi.TransactionContextInterface, issuer string) ([]Commmodity, error) {
 	indexName := "state~issuer~id"
 	resultIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(indexName, []string{STATE_ON_SALE, issuer})
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	defer resultIterator.Close()
 	result := []Commmodity{}
-	for resultIterator.HasNext(){
+	for resultIterator.HasNext() {
 		item, _ := resultIterator.Next()
 		_, compositeKeyParts, err := ctx.GetStub().SplitCompositeKey(item.Key)
 		if err != nil {
@@ -147,12 +151,12 @@ func (s *SmartContract) QueryCommodityOnSaleByIssuer(ctx contractapi.Transaction
 func (s *SmartContract) QueryCommoditySaledByIssuer(ctx contractapi.TransactionContextInterface, issuer string) ([]Commmodity, error) {
 	indexName := "state~issuer~id"
 	resultIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(indexName, []string{STATE_BE_BAUGHT, issuer})
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	defer resultIterator.Close()
 	result := []Commmodity{}
-	for resultIterator.HasNext(){
+	for resultIterator.HasNext() {
 		item, _ := resultIterator.Next()
 		_, compositeKeyParts, err := ctx.GetStub().SplitCompositeKey(item.Key)
 		if err != nil {
@@ -193,6 +197,34 @@ func (s *SmartContract) QueryCommodityById(ctx contractapi.TransactionContextInt
 	_ = json.Unmarshal(commodityAsBytes, commodity)
 
 	return commodity, nil
+}
+
+// 返回所有待售商品
+func (s *SmartContract) QueryCommodityOnSale(ctx contractapi.TransactionContextInterface) ([]Commmodity, error) {
+	indexName := "state~id"
+	resultIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(indexName, []string{STATE_ON_SALE})
+	if err != nil {
+		return nil, err
+	}
+	defer resultIterator.Close()
+	result := []Commmodity{}
+	for resultIterator.HasNext() {
+		item, _ := resultIterator.Next()
+		_, compositeKeyParts, err := ctx.GetStub().SplitCompositeKey(item.Key)
+		if err != nil {
+			return nil, err
+		}
+		id := compositeKeyParts[1]
+		commodityAsBytes, err := ctx.GetStub().GetState(id)
+		if err != nil {
+			return nil, err
+		}
+		commodity := new(Commmodity)
+		_ = json.Unmarshal(commodityAsBytes, commodity)
+		result = append(result, *commodity)
+
+	}
+	return result, nil
 }
 
 func (s *SmartContract) QueryAllCommodity(ctx contractapi.TransactionContextInterface) ([]Commmodity, error) {
