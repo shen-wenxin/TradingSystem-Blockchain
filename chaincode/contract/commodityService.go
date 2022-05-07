@@ -68,10 +68,18 @@ func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterf
 	}
 
 	// 开始创建复合键
+	// 名字~id号复合键
 	err = s.createCompositeKeyandSave(ctx, "name~id", []string{commodity.Name, commodity.Id})
 	if err != nil {
 		return err
 	}
+
+	// 状态~id号复合键
+	err = s.createCompositeKeyandSave(ctx, "state~issuer~id", []string{commodity.State, commodity.IssuerId, commodity.Id})
+	if err != nil{
+		return err
+	}
+
 	return s.createCompositeKeyandSave(ctx, "Issuer~id", []string{commodity.IssuerId, commodity.Id})
 }
 
@@ -108,38 +116,58 @@ func (s *SmartContract) QueryCommodityByIssuer(ctx contractapi.TransactionContex
 
 // 获得正在售卖的商品(通过issuer)
 func (s *SmartContract) QueryCommodityOnSaleByIssuer(ctx contractapi.TransactionContextInterface, issuer string) ([]Commmodity, error) {
-	if !strings.HasPrefix(issuer, PREFIX_ID_BUSSINIESSMAN) {
-		return nil, fmt.Errorf(ERROR_CODE_ILLEGALID)
-	}
-	commodityAll, err := s.QueryCommodityByIssuer(ctx, issuer)
-	if err != nil {
+	indexName := "state~issuer~id"
+	resultIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(indexName, []string{STATE_ON_SALE, issuer})
+	if err != nil{
 		return nil, err
 	}
+	defer resultIterator.Close()
 	result := []Commmodity{}
-	for _, commodity := range commodityAll {
-		if commodity.IssuerId == commodity.OwnerId {
-			// 还未售出
-			result = append(result, commodity)
+	for resultIterator.HasNext(){
+		item, _ := resultIterator.Next()
+		_, compositeKeyParts, err := ctx.GetStub().SplitCompositeKey(item.Key)
+		if err != nil {
+			return nil, err
 		}
+		id := compositeKeyParts[2]
+		commodityAsBytes, err := ctx.GetStub().GetState(id)
+		if err != nil {
+			return nil, err
+		}
+		commodity := new(Commmodity)
+
+		_ = json.Unmarshal(commodityAsBytes, commodity)
+
+		result = append(result, *commodity)
 	}
 	return result, nil
 }
 
-// 获得还未售出的商品(通过issuer)
+// 获得已经出售的商品(通过issuer)
 func (s *SmartContract) QueryCommoditySaledByIssuer(ctx contractapi.TransactionContextInterface, issuer string) ([]Commmodity, error) {
-	if !strings.HasPrefix(issuer, PREFIX_ID_BUSSINIESSMAN) {
-		return nil, fmt.Errorf(ERROR_CODE_ILLEGALID)
-	}
-	commodityAll, err := s.QueryCommodityByIssuer(ctx, issuer)
-	if err != nil {
+	indexName := "state~issuer~id"
+	resultIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(indexName, []string{STATE_BE_BAUGHT, issuer})
+	if err != nil{
 		return nil, err
 	}
+	defer resultIterator.Close()
 	result := []Commmodity{}
-	for _, commodity := range commodityAll {
-		if commodity.IssuerId != commodity.OwnerId {
-			// 还未售出
-			result = append(result, commodity)
+	for resultIterator.HasNext(){
+		item, _ := resultIterator.Next()
+		_, compositeKeyParts, err := ctx.GetStub().SplitCompositeKey(item.Key)
+		if err != nil {
+			return nil, err
 		}
+		id := compositeKeyParts[2]
+		commodityAsBytes, err := ctx.GetStub().GetState(id)
+		if err != nil {
+			return nil, err
+		}
+		commodity := new(Commmodity)
+
+		_ = json.Unmarshal(commodityAsBytes, commodity)
+
+		result = append(result, *commodity)
 	}
 	return result, nil
 }
