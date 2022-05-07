@@ -17,7 +17,9 @@ type Commmodity struct {
 	Price          int64  `json:"price"`      //价格
 	Currency       string `json:"currency"`   // 币种
 	IssuerId       string `json:"issuerId"`   // 发行者id
+	IssuerName     string `json:"issuerName"` // 发行者名字
 	OwnerId        string `json:"ownerId"`    // 所属人id
+	OwnerName      string `json:"ownerName"`  // 所属人名字
 	LastUpdateTime string `json:"lastUpdate"` // 最近更新时间
 	State          string `json:"state"`      // 状态
 }
@@ -31,7 +33,7 @@ const (
 
 // QueryResult stucture used for handling result of query bussinessman
 func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterface,
-	id string, name string, price string, issuer string) error {
+	id string, name string, price string, issuer string, issuerName string) error {
 	if !strings.HasPrefix(id, PREFIX_ID_COMMODITY) {
 		return fmt.Errorf(ERROR_CODE_ILLEGALID)
 	}
@@ -54,7 +56,9 @@ func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterf
 		Price:          int64(pri),
 		Currency:       CURRENCY_RMB,
 		IssuerId:       issuer,
+		IssuerName:     issuerName,
 		OwnerId:        issuer,
+		OwnerName:      issuerName,
 		LastUpdateTime: strconv.FormatInt(time.Now().Unix(), 10),
 		State:          STATE_ON_SALE,
 	}
