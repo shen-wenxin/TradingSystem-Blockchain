@@ -10,6 +10,20 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
+
+// t_bussiness_account
+type Business struct {
+	Id              string   `json:"id"`              // Id号，全局唯一
+	Name            string   `json:"name"`            // 名字
+	Phone           string   `json:"phone"`           // 商家联系方式
+	CommodityIdList []string `json:"commodityIdList"` // 商品表
+	Balance         int64    `json:"balance"`         // 余额
+	Currency        string   `json:"currency"`        // 币种
+	DiscountList    []string `json:"discountList"`    // 派发的优惠卷
+	State           bool     `json:"state"`           // 账户状态
+	LastUpdateTime  string   `json:"lastUpdateTime"`  // 最近更新时间
+}
+
 // QueryBusiness returns the businessman stored in the world state with given id
 func (s *SmartContract) QueryBusiness(ctx contractapi.TransactionContextInterface, id string) (*Business, error) {
 

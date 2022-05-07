@@ -54,7 +54,7 @@ func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterf
 		Price:          int64(pri),
 		Currency:       CURRENCY_RMB,
 		IssuerId:       issuer,
-		OwnerId:        "",
+		OwnerId:        issuer,
 		LastUpdateTime: strconv.FormatInt(time.Now().Unix(), 10),
 		State:          STATE_ON_SALE,
 	}
@@ -103,6 +103,44 @@ func (s *SmartContract) QueryCommodityByIssuer(ctx contractapi.TransactionContex
 		result = append(result, *commodity)
 	}
 
+	return result, nil
+}
+
+// 获得正在售卖的商品(通过issuer)
+func (s *SmartContract) QueryCommodityOnSaleByIssuer(ctx contractapi.TransactionContextInterface, issuer string) ([]Commmodity, error) {
+	if !strings.HasPrefix(issuer, PREFIX_ID_BUSSINIESSMAN) {
+		return nil, fmt.Errorf(ERROR_CODE_ILLEGALID)
+	}
+	commodityAll, err := s.QueryCommodityByIssuer(ctx, issuer)
+	if err != nil {
+		return nil, err
+	}
+	result := []Commmodity{}
+	for _, commodity := range commodityAll {
+		if commodity.IssuerId == commodity.OwnerId {
+			// 还未售出
+			result = append(result, commodity)
+		}
+	}
+	return result, nil
+}
+
+// 获得还未售出的商品(通过issuer)
+func (s *SmartContract) QueryCommoditySaledByIssuer(ctx contractapi.TransactionContextInterface, issuer string) ([]Commmodity, error) {
+	if !strings.HasPrefix(issuer, PREFIX_ID_BUSSINIESSMAN) {
+		return nil, fmt.Errorf(ERROR_CODE_ILLEGALID)
+	}
+	commodityAll, err := s.QueryCommodityByIssuer(ctx, issuer)
+	if err != nil {
+		return nil, err
+	}
+	result := []Commmodity{}
+	for _, commodity := range commodityAll {
+		if commodity.IssuerId != commodity.OwnerId {
+			// 还未售出
+			result = append(result, commodity)
+		}
+	}
 	return result, nil
 }
 

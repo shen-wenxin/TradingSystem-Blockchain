@@ -9,6 +9,14 @@ import (
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
+// data structure
+type Superviser struct {
+	Id             string `json:"id"`             //id号，全局唯一
+	Name           string `json:"name"`           //名字
+	State          bool   `json:"state"`          // 账号状态
+	Remarks        string `json:"remarks"`        // 备注
+	LastUpdateTime string `json:"lastUpdateTime"` //最近更新时间
+}
 
 // ============Superviser============
 // QueryAllSuperviser returns all Supervisers found in world state

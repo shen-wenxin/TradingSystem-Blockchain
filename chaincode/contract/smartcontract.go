@@ -19,28 +19,6 @@ type SmartContract struct {
 	contractapi.Contract
 }
 
-// data structure
-type Superviser struct {
-	Id             string `json:"id"`             //id号，全局唯一
-	Name           string `json:"name"`           //名字
-	State          bool   `json:"state"`          // 账号状态
-	Remarks        string `json:"remarks"`        // 备注
-	LastUpdateTime string `json:"lastUpdateTime"` //最近更新时间
-}
-
-// t_bussiness_account
-type Business struct {
-	Id              string   `json:"id"`              // Id号，全局唯一
-	Name            string   `json:"name"`            // 名字
-	Phone           string   `json:"phone"`           // 商家联系方式
-	CommodityIdList []string `json:"commodityIdList"` // 商品表
-	Balance         int64    `json:"balance"`         // 余额
-	Currency        string   `json:"currency"`        // 币种
-	DiscountList    []string `json:"discountList"`    // 派发的优惠卷
-	State           bool     `json:"state"`           // 账户状态
-	LastUpdateTime  string   `json:"lastUpdateTime"`  // 最近更新时间
-}
-
 // t_trade
 type Trade struct {
 	TradeId        string `json:"tradeId"`        // 交易id号
