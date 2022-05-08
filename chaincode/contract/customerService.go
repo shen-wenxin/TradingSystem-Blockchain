@@ -110,6 +110,28 @@ func (s *SmartContract) QueryCustomer(ctx contractapi.TransactionContextInterfac
 	return customer, nil
 }
 
+func (s *SmartContract) QueryCustomerName(ctx contractapi.TransactionContextInterface,cid string)(string, error){
+
+	if !strings.HasPrefix(cid, PREFIX_ID_CUSTOMER){
+		return "", fmt.Errorf(ERROR_CODE_ILLEGALID)
+	}
+
+	customerAsBytes, err := ctx.GetStub().GetState(cid)
+
+	if err != nil {
+		return "", fmt.Errorf(ERROR_CODE_GETCHAINFAILED)
+	}
+
+	if customerAsBytes == nil {
+		return "", fmt.Errorf(ERROR_CODE_UNEXISTDATA)
+	}
+
+	customer := new(Customer)
+	_ = json.Unmarshal(customerAsBytes, customer)
+
+	return customer.Name, nil
+}
+
 // DeleteCustomer delete the customer with the id given in world state
 func (s *SmartContract) DeleteCustomer(ctx contractapi.TransactionContextInterface, id string) error {
 	if !strings.HasPrefix(id, PREFIX_ID_CUSTOMER) {

@@ -19,19 +19,6 @@ type SmartContract struct {
 	contractapi.Contract
 }
 
-// t_trade
-type Trade struct {
-	TradeId        string `json:"tradeId"`        // 交易id号
-	TradeTime      string `json:"tradeTime"`      // 交易时间
-	Price          string `json:"price"`          // 价格
-	BuyerId        string `json:"buyerId"`        // 消费者id
-	SalerId        string `json:"salerId"`        //商家id
-	CommodityId    string `json:"commodityId"`    // 商品id
-	Valid          bool   `json:"valid"`          // 交易是否有效
-	LastUpdateTime string `json:"lastUpdateTime"` // 最近更新时间
-	Remakes        string `json:"remakes"`        // 备注
-}
-
 // t_operate
 type Operate struct {
 	Id            string `json:"tradeId"`       // 操作id
@@ -78,6 +65,7 @@ const (
 	PREFIX_ID_BUSSINIESSMAN = "0001"
 	PREFIX_ID_COMMODITY     = "0002"
 	PREFIX_ID_SUPERVISER    = "0003"
+	PREFIX_ID_TRADE         = "0004"
 )
 
 // account state
@@ -133,16 +121,7 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 	return nil
 }
 
-// 创建复合键并存储
-func (s *SmartContract) createCompositeKeyandSave(ctx contractapi.TransactionContextInterface,
-	indexName string, attributes []string) error {
-	indexKey, err := ctx.GetStub().CreateCompositeKey(indexName, attributes)
-	if err != nil {
-		return err
-	}
-	value := []byte{0x00}
-	return ctx.GetStub().PutState(indexKey, value)
-}
+
 
 // idOnChainCheck check if the id has been used as the key on blockchain
 func (s *SmartContract) idOnChainCheck(ctx contractapi.TransactionContextInterface, id string) (bool, error) {

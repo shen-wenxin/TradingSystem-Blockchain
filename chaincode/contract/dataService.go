@@ -14,3 +14,24 @@ func (s *SmartContract) DataOnChainCheck(ctx contractapi.TransactionContextInter
 	}
 	return true, nil
 }
+
+// 创建复合键并存储
+func (s *SmartContract) createCompositeKeyandSave(ctx contractapi.TransactionContextInterface,
+	indexName string, attributes []string) error {
+	indexKey, err := ctx.GetStub().CreateCompositeKey(indexName, attributes)
+	if err != nil {
+		return err
+	}
+	value := []byte{0x00}
+	return ctx.GetStub().PutState(indexKey, value)
+}
+
+// 删除链上复合键
+func (s *SmartContract) deleteCompositeKey(ctx contractapi.TransactionContextInterface,
+	indexName string, attributes []string) error {
+	indexKey, err := ctx.GetStub().CreateCompositeKey(indexName, attributes)
+	if err != nil{
+		return err
+	}
+	return ctx.GetStub().DelState(indexKey)
+}
