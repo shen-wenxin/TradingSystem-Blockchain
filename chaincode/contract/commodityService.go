@@ -92,7 +92,7 @@ func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterf
 }
 
 func (s *SmartContract) ChangeCommodityBeBaught(ctx contractapi.TransactionContextInterface,
- 	cid string, sid string, bid string, tTime string)(error){
+	cid string, sid string, bid string, tTime string) error {
 	// cid commodityId	sid salerId(businessId) bid buyerId(customerId) tTime(tradeTime)
 	commodityAsBytes, err := ctx.GetStub().GetState(cid)
 
@@ -114,7 +114,7 @@ func (s *SmartContract) ChangeCommodityBeBaught(ctx contractapi.TransactionConte
 		return err
 	}
 
-	err = s.deleteCompositeKey(ctx,  "state~id", []string{commodity.State, commodity.Id})
+	err = s.deleteCompositeKey(ctx, "state~id", []string{commodity.State, commodity.Id})
 	if err != nil {
 		return err
 	}
@@ -156,7 +156,7 @@ func (s *SmartContract) ChangeCommodityBeBaught(ctx contractapi.TransactionConte
 
 	return nil
 
- }
+}
 
 func (s *SmartContract) QueryCommodityByIssuer(ctx contractapi.TransactionContextInterface, issuer string) ([]Commmodity, error) {
 	indexName := "Issuer~id"
@@ -298,6 +298,41 @@ func (s *SmartContract) QueryCommodityOnSale(ctx contractapi.TransactionContextI
 	return result, nil
 }
 
+// 返回所有已被 customerId 购买的商品
+func (s *SmartContract) QueryAllCommoditybeBaughtByCustomer(ctx contractapi.TransactionContextInterface, cId string) ([]Commmodity, error) {
+	if !strings.HasPrefix(cId, PREFIX_ID_CUSTOMER) {
+		return nil, fmt.Errorf(ERROR_CODE_ILLEGALID)
+	}
+
+	indexName := "state~owner~id"
+
+	resultIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(indexName, []string{STATE_BE_BAUGHT, cId})
+	if err != nil {
+		return nil, err
+	}
+	defer resultIterator.Close()
+	result := []Commmodity{}
+	for resultIterator.HasNext() {
+		item, _ := resultIterator.Next()
+		_, compositeKeyParts, err := ctx.GetStub().SplitCompositeKey(item.Key)
+		if err != nil {
+			return nil, err
+		}
+		id := compositeKeyParts[2]
+		commodityAsBytes, err := ctx.GetStub().GetState(id)
+		if err != nil {
+			return nil, err
+		}
+		commodity := new(Commmodity)
+		_ = json.Unmarshal(commodityAsBytes, commodity)
+		result = append(result, *commodity)
+	}
+	return result, nil
+}
+
+
+
+// 得到所有商品
 func (s *SmartContract) QueryAllCommodity(ctx contractapi.TransactionContextInterface) ([]Commmodity, error) {
 	startKey := PREFIX_ID_COMMODITY + strings.Repeat("0", 11)
 	endKey := PREFIX_ID_COMMODITY + strings.Repeat("9", 11)
@@ -326,5 +361,4 @@ func (s *SmartContract) QueryAllCommodity(ctx contractapi.TransactionContextInte
 	}
 
 	return results, nil
-
 }
