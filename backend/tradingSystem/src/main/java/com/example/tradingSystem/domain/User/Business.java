@@ -8,7 +8,7 @@ import lombok.Data;
 public class Business {
 
     // 商户id 全局唯一
-    private String accountId;
+    private String id;
 
     // 商户名称
     private String name;

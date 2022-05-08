@@ -4,13 +4,15 @@ import java.util.List;
 
 import com.alibaba.fastjson.JSONObject;
 import com.example.tradingSystem.common.Constant;
+import com.example.tradingSystem.common.Status;
+import com.example.tradingSystem.domain.Commodity.Commodity;
 import com.example.tradingSystem.domain.User.Business;
 import com.example.tradingSystem.domain.User.Customer;
 import com.example.tradingSystem.domain.User.Superviser;
 import com.example.tradingSystem.domain.User.User;
 import com.example.tradingSystem.entry.blockchain.BlockChainMapper;
-import com.example.tradingSystem.entry.blockchain.BlockChainMapperImpl;
 import com.example.tradingSystem.service.BlockChainService;
+import com.example.tradingSystem.web.exception.BussinessException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,6 +57,11 @@ public class BlockChainServiceImpl implements BlockChainService{
     }
 
     @Override
+    public Boolean userExist(String id) {
+        return mapper.DataOnChainCheck(id);
+    }
+
+    @Override
     public Boolean userRegister(User user) {
         Integer roleType = user.getRole();
         if (roleType == Constant.ROLE_TYPE_SUPERVISER){
@@ -92,6 +99,25 @@ public class BlockChainServiceImpl implements BlockChainService{
     }
 
     @Override
+    public String getUserNameById(String id) {
+        String name = "";
+        if (id.startsWith(Constant.PREFIX_ID_SUPERVISER)){
+            Superviser sup = getSuperviserOnChain(id.substring(4));
+            name = sup.getName();
+        }else if(id.startsWith(Constant.PREFIX_ID_BUSSINIESSMAN)){
+            Business bus = getBussinessOnChain(id.substring(4));
+            name = bus.getName();
+        }else if(id.startsWith(Constant.PREFIX_ID_CUSTOMER)){
+            Customer cus = getCustomerOnChain(id.substring(4));
+            name = cus.getName();
+        }else{
+            throw new BussinessException(Status.FAIL_INVALID_PARAM.code());
+        }
+        return name;
+    }
+
+
+    @Override
     public JSONObject getUserInfoOnChain(String id, Integer role) {
         JSONObject jsonObj = new JSONObject();
         if (role ==  Constant.ROLE_TYPE_SUPERVISER){
@@ -110,5 +136,24 @@ public class BlockChainServiceImpl implements BlockChainService{
         return jsonObj;
    
     }
+
+    @Override
+    public Boolean commodityCreate(String name, String price, String issuer, String issuerName) {
+        return mapper.createCommodity(name, price, issuer, issuerName);
+    }
+
+    @Override
+    public List<Commodity> getCommodityOnSaleByIssuer(String issuer) {
+        return mapper.getCommodityOnSaleByIssuer(issuer);
+    }
+
+    @Override
+    public List<Commodity> getCommodityOnSale() {
+        return mapper.getCommodityOnSale();
+    }
+
+    
+
+
     
 }

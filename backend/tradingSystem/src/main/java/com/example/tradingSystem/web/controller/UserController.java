@@ -1,4 +1,4 @@
-package com.example.tradingSystem.web.controller.user;
+package com.example.tradingSystem.web.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.example.tradingSystem.common.Constant;
@@ -136,5 +136,13 @@ public class UserController {
         return result;
     }
 
+    @GetMapping("/getUserNameById/{id}")
+    public JsonResult getUserNameById(@PathVariable String id) throws Exception{
+        log.info("[getUserNameById]Begin to getUserNameById");
+        String name = blockchainService.getUserNameById(id);
+        JsonResult result = new JsonResult();
+        result.ok(name);
+        return result;
+    }
 
 }

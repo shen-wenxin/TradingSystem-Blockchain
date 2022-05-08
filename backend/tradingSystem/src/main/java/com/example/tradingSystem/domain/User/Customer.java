@@ -10,7 +10,7 @@ import lombok.Data;
 public class Customer {
 
     // 消费者ID 全局唯一
-    private String accountId;
+    private String id;
 
     // 监管机构名称
     private String name;

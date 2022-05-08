@@ -11,6 +11,7 @@ import java.security.InvalidKeyException;
 import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -18,6 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson2.JSON;
 import com.example.tradingSystem.common.Constant;
 import com.example.tradingSystem.common.Status;
+import com.example.tradingSystem.domain.Commodity.Commodity;
 import com.example.tradingSystem.domain.User.Business;
 import com.example.tradingSystem.domain.User.Customer;
 import com.example.tradingSystem.domain.User.Superviser;
@@ -232,6 +234,68 @@ public class BlockChainMapperImpl implements BlockChainMapper{
 
         }
     }
+
+    @Override
+    public Boolean createCommodity(String name, String price, String issuer, String issuerName) {
+        if (! issuer.startsWith(Constant.PREFIX_ID_BUSSINIESSMAN)){
+            // 身份校验
+            log.error("非商家id");
+            throw new BussinessException(Status.FAIL_NO_PERMISSION.code());
+
+        }
+        // 生成商品id
+        String random =String.valueOf((int)((Math.random()*9+1)*100000)); //生成 6位随机数
+        String id = Constant.PREFIX_ID_COMMIDITY + random + issuer;
+
+        try{
+            this.contract.submitTransaction("CreateCommodity", id, name, price, issuer, issuerName);
+            log.info("[Fabric]CreateCommodity Succeed.");
+            return true;
+        } catch (Exception e){
+            log.error("[BlockChainMapperImpl]CreateCommodity falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+
+        }
+
+    }
+
+    @Override
+    public List<Commodity> getCommodityOnSaleByIssuer(String issuer) {
+        log.info("getCommodityOnSaleByIssuer + and id is "+issuer);
+        if (!issuer.startsWith(Constant.PREFIX_ID_BUSSINIESSMAN)){
+            log.error("id param wrong");
+            throw new BussinessException(Status.FAIL_INVALID_PARAM.code());
+        }
+        try{
+            String result = new String(this.contract.evaluateTransaction("QueryCommodityOnSaleByIssuer", issuer));
+            log.info("[Fabric]QueryCommodityOnSaleByIssuer Succeed.");
+            List<Commodity> res = new ArrayList<>();
+            res = JSON.parseArray(result, Commodity.class);
+            log.info("[BlockChainMapperImpl]Parse string to Commodity object succeed.");
+            return res;
+
+        }catch (Exception e){
+            log.error("[BlockChainMapperImpl]QueryCommodityOnSaleByIssuer falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+        }
+    }
+
+    @Override
+    public List<Commodity> getCommodityOnSale() {
+        try{
+            String result = new String(this.contract.evaluateTransaction("QueryCommodityOnSale"));
+            log.info("[Fabric]QueryCommodityOnSale Succeed.");
+            List<Commodity> res = new ArrayList<>();
+            res = JSON.parseArray(result, Commodity.class);
+            log.info("[BlockChainMapperImpl]Parse string to Commodity object succeed.");
+            return res;
+        }catch (Exception e){
+            log.error("[BlockChainMapperImpl]QueryCommodityOnSale falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+        }
+    }
+
+    
 
     
 
