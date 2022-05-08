@@ -25,10 +25,11 @@ import lombok.extern.slf4j.Slf4j;
 @CrossOrigin
 @RequestMapping(value = "/commodity")   
 public class CommodityController {
-    // 上架
+
     @Autowired
     private BlockChainService blockchainService;
 
+    // 上架商品
     @PostMapping("/sale")
     public JsonResult sale(@RequestBody SaleCommodity sCommodity){
 
@@ -78,5 +79,25 @@ public class CommodityController {
         result.ok(coms);
         return result;
     }
+
+    // 获取该买家所有已购买的商品
+    @GetMapping("/getGoodBeBaught/{id}")
+    public JsonResult getGoodBeBaughtbyCus(@PathVariable String id) throws Exception{
+        log.info("[getGoodBeBaughtbyCus] Begin and the id is " + id);
+        List<Commodity> coms = blockchainService.getCommodityBaughtByCus(id);
+        JsonResult result = new JsonResult();
+        result.ok(coms);
+        return result;
+    }
+
+    @GetMapping("/getGoodSaled/{id}")
+    public JsonResult getGoodSaledbyBus(@PathVariable String id) throws Exception {
+        log.info("[getGoodSaledbyBus] Begin and the id is " + id);
+        List<Commodity> coms = blockchainService.getCommoditySaledByBus(id);
+        JsonResult result = new JsonResult();
+        result.ok(coms);
+        return result;
+    }
+
 
 }

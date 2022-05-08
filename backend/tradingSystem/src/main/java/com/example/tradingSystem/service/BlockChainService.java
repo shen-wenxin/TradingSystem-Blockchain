@@ -2,6 +2,8 @@ package com.example.tradingSystem.service;
 
 import java.util.List;
 
+import javax.activation.CommandObject;
+
 import com.alibaba.fastjson.JSONObject;
 import com.example.tradingSystem.domain.Commodity.Commodity;
 import com.example.tradingSystem.domain.User.Business;
@@ -37,6 +39,14 @@ public interface BlockChainService {
     List<Commodity> getCommodityOnSaleByIssuer(String issuer);
 
     List<Commodity> getCommodityOnSale();
+
+    List<Commodity> getCommodityBaughtByCus(String customer);
+
+    List<Commodity> getCommoditySaledByBus(String bus);
+
+    // trade 
+
+    Boolean createBuyTrade(String tTime, String price, String bId, String sId, String cId);
 
     
 

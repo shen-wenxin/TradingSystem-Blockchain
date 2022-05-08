@@ -3,7 +3,6 @@ package com.example.tradingSystem.service;
 
 import java.util.List;
 
-import com.example.tradingSystem.domain.User.Superviser;
 import com.example.tradingSystem.domain.User.User;
 
 

@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson2.JSON;
 import com.example.tradingSystem.common.Constant;
 import com.example.tradingSystem.common.Status;
@@ -34,7 +33,6 @@ import org.hyperledger.fabric.gateway.Wallets;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.implementation.bind.annotation.Super;
 @Slf4j
 @Service
 public class BlockChainMapperImpl implements BlockChainMapper{
@@ -239,7 +237,7 @@ public class BlockChainMapperImpl implements BlockChainMapper{
     public Boolean createCommodity(String name, String price, String issuer, String issuerName) {
         if (! issuer.startsWith(Constant.PREFIX_ID_BUSSINIESSMAN)){
             // 身份校验
-            log.error("非商家id");
+            log.error("id param wrong");
             throw new BussinessException(Status.FAIL_NO_PERMISSION.code());
 
         }
@@ -292,6 +290,73 @@ public class BlockChainMapperImpl implements BlockChainMapper{
         }catch (Exception e){
             log.error("[BlockChainMapperImpl]QueryCommodityOnSale falied." + e.getMessage());
             throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+        }
+    }
+
+    @Override
+    public Boolean createBuyTrade(String tTime, String price, String bId, String sId, String cId) {
+        // tTime tradeTime, bId buyerId(customerId), sId salerId(bussinessId), cId commodityId
+
+        // Id 校验
+        if ((!bId.startsWith(Constant.PREFIX_ID_CUSTOMER)) || 
+            (!sId.startsWith(Constant.PREFIX_ID_BUSSINIESSMAN))||
+            (!cId.startsWith(Constant.PREFIX_ID_COMMIDITY))){
+                log.error("id param wrong");
+                throw new BussinessException(Status.FAIL_INVALID_PARAM.code());
+        }
+
+        // 生成cid
+        String random = String.valueOf((int)((Math.random()*9+1)*1000));// 生成4位随机数
+        // tId 格式 前缀 + 交易时间 + 4位随机数
+        String tId = Constant.PREFIX_ID_TRADE + tTime + random;
+        try{
+            this.contract.submitTransaction("CreateBuyTrade", tId, tTime, price, bId, sId, cId);
+            log.info("[Fabric]CreateBuyTrade succeed");
+            return true;
+        } catch (Exception e){
+            log.error("[BlockChainMapperImpl]createBuyTrade falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+        }
+
+    }
+    
+    @Override
+    public List<Commodity> getCommodityBaughtByCus(String customer) {
+        if (! customer.startsWith(Constant.PREFIX_ID_CUSTOMER)){
+            log.info("id param wrong");
+            throw new BussinessException(Status.FAIL_INVALID_PARAM.code());
+        }
+
+        try{
+            String result = new String(this.contract.evaluateTransaction("QueryAllCommoditybeBaughtByCustomer", customer));
+            log.info("[Fabric]QueryAllCommoditybeBaughtByCustomer Succeed.");
+            List<Commodity> res = new ArrayList<>();
+            res = JSON.parseArray(result, Commodity.class);
+            log.info("[BlockChainMapperImpl]Parse string to Commodity object succeed.");
+            return res;
+        }catch (Exception e){
+            log.error("[BlockChainMapperImpl]QueryAllCommoditybeBaughtByCustomer falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+        }
+    }
+
+    @Override
+    public List<Commodity> getCommoditySaledByIssuer(String bus) {
+        if (! bus.startsWith(Constant.PREFIX_ID_BUSSINIESSMAN)){
+            log.info("id param wrong");
+            throw new BussinessException(Status.FAIL_INVALID_PARAM.code());
+        }
+        try {
+            String result = new String(this.contract.evaluateTransaction("QueryCommoditySaledByIssuer", bus));
+            log.info("[Fabric]QueryCommoditySaledByIssuer Succeed.");
+            List<Commodity> res = new ArrayList<>();
+            res = JSON.parseArray(result, Commodity.class);
+            log.info("[BlockChainMapperImpl]Parse string to Commodity object succeed.");
+            return res;
+        } catch (Exception e){
+            log.error("[BlockChainMapperImpl]QueryCommoditySaledByIssuer falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+
         }
     }
 
