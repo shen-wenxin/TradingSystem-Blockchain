@@ -24,7 +24,7 @@ type Trade struct {
 
 // 产生购买交易
 func (s *SmartContract) CreateBuyTrade(ctx contractapi.TransactionContextInterface,
-	tId string, price string, bId string, sId string, cId string) error {
+	tId string, tradeTime string, price string, bId string, sId string, cId string) error {
 
 	// 前缀校验
 	if (!strings.HasPrefix(tId, PREFIX_ID_TRADE)) ||
@@ -43,16 +43,16 @@ func (s *SmartContract) CreateBuyTrade(ctx contractapi.TransactionContextInterfa
 
 	pri, _ := strconv.Atoi(price)
 
-	tTime := strconv.FormatInt(time.Now().Unix(), 10)
+	updateTime := strconv.FormatInt(time.Now().Unix(), 10)
 	trade := Trade{
 		Id:             tId,
-		TradeTime:      tTime,
+		TradeTime:      tradeTime,
 		Price:          int64(pri),
 		BuyerId:        bId,
 		SalerId:        sId,
 		CommodityId:    cId,
 		Valid:          true,
-		LastUpdateTime: tTime,
+		LastUpdateTime: updateTime,
 	}
 
 	tradeAsBytes, _ := json.Marshal(trade)
@@ -75,7 +75,7 @@ func (s *SmartContract) CreateBuyTrade(ctx contractapi.TransactionContextInterfa
 	}
 
 	// 修改commodity 状态
-	err = s.ChangeCommodityBeBaught(ctx, cId, sId, bId, tTime)
+	err = s.ChangeCommodityBeBaught(ctx, cId, sId, bId, updateTime)
 	if err != nil {
 		return err
 	}
