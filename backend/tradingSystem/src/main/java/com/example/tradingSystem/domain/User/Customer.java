@@ -24,6 +24,9 @@ public class Customer {
     // 商品Id list
     private List<String> commodityIdList;
 
+    // 购买商品个数
+    private Integer commodityCount;  
+
     // 余额 单位：分
     private Integer balance;
 

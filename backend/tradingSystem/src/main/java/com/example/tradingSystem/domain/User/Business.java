@@ -19,6 +19,9 @@ public class Business {
     // 商品Id list
     private List<String> commodityIdList;
 
+    // 售出商品个数
+    private Integer commodityCount;  
+
     // 余额 单位：分
     private Integer balance;
 

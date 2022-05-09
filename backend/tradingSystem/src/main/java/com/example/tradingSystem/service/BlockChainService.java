@@ -6,6 +6,7 @@ import javax.activation.CommandObject;
 
 import com.alibaba.fastjson.JSONObject;
 import com.example.tradingSystem.domain.Commodity.Commodity;
+import com.example.tradingSystem.domain.Trade.Account;
 import com.example.tradingSystem.domain.User.Business;
 import com.example.tradingSystem.domain.User.Customer;
 import com.example.tradingSystem.domain.User.Superviser;
@@ -21,6 +22,7 @@ public interface BlockChainService {
 
     // Business
     Business getBussinessOnChain(String id);
+    Business getBussinessOnChainById(String busId);
 
     // userController 
     Boolean userExist(String id, Integer role);
@@ -47,6 +49,12 @@ public interface BlockChainService {
     // trade 
 
     Boolean createBuyTrade(String tTime, String price, String bId, String sId, String cId);
+    Integer getBusProfitByMonth(String bId);
+
+    List<Account> getBusAccountList(String bId);
+
+
+
 
     
 

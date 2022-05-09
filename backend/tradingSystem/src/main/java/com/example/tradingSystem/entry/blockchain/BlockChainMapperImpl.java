@@ -12,6 +12,7 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
 
@@ -19,6 +20,7 @@ import com.alibaba.fastjson2.JSON;
 import com.example.tradingSystem.common.Constant;
 import com.example.tradingSystem.common.Status;
 import com.example.tradingSystem.domain.Commodity.Commodity;
+import com.example.tradingSystem.domain.Trade.Account;
 import com.example.tradingSystem.domain.User.Business;
 import com.example.tradingSystem.domain.User.Customer;
 import com.example.tradingSystem.domain.User.Superviser;
@@ -232,6 +234,23 @@ public class BlockChainMapperImpl implements BlockChainMapper{
 
         }
     }
+    @Override
+    public Boolean ExistAccountCheck(String userId, String month, String year) {
+        try{
+            String result = new String(this.contract.evaluateTransaction("ExistAccountByUserMonth", userId, month, year));
+            log.info("[Fabric]ExistAccountByUserMonth Succeed.result: {}",result);
+            if (result.equals("false")){
+                return false;
+            }
+            return true;
+            
+        } catch (Exception e){
+            log.error("[BlockChainMapperImpl]ExistAccountByUserMonth falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+
+        }
+    }
+
 
     @Override
     public Boolean createCommodity(String name, String price, String issuer, String issuerName) {
@@ -359,6 +378,66 @@ public class BlockChainMapperImpl implements BlockChainMapper{
 
         }
     }
+
+    @Override
+    public Business getBusinessById(String businessId) {
+        if (! businessId.startsWith(Constant.PREFIX_ID_BUSSINIESSMAN)){
+            log.info("id param wrong");
+            throw new BussinessException(Status.FAIL_INVALID_PARAM.code());
+        }
+        try{
+            String result = new String(this.contract.evaluateTransaction("QueryBusiness", businessId));
+            log.info("[Fabric]QueryBusiness Succeed. result : "+ result);
+            Business bus = JSON.parseObject(result, Business.class);
+            log.info("[BlockChainMapperImpl]Parse string to Business object succeed.");
+            return bus;
+        } catch (Exception e){
+            log.error("[BlockChainMapperImpl]QueryBusiness falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+
+        }
+    }
+
+    @Override
+    public Integer getBusProfitByMonth(String bId) {
+        if (! bId.startsWith(Constant.PREFIX_ID_BUSSINIESSMAN)){
+            log.info("id param wrong");
+            throw new BussinessException(Status.FAIL_INVALID_PARAM.code());
+        }
+        try{
+            
+		    Calendar calendar = Calendar.getInstance();
+            String year = String.valueOf(calendar.get(Calendar.YEAR));
+            String month = String.valueOf(calendar.get(Calendar.MONTH) + 1);
+            log.info("year is " + year + ", month is "+ month);
+            String result = new String(this.contract.evaluateTransaction("GetBusProfitByMonth", bId, month,year));
+            log.info("[Fabric]QueryBusiness Succeed. result : "+ result);
+            Integer res = Integer.parseInt(result);
+            log.info("[BlockChainMapperImpl]Parse string to int object succeed.");
+            return res;
+        } catch (Exception e){
+            log.error("[BlockChainMapperImpl]QueryBusiness falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+
+        }
+    }
+
+    @Override
+    public Account getAccountByUserMonth(String userId, String month, String year) {
+        try{
+            String result = new String(this.contract.evaluateTransaction("QueryAccountByUserMonth", userId, month, year));
+            log.info("[Fabric]QueryAccountByUserMonth Succeed. result : "+ result);
+            Account acc = JSON.parseObject(result, Account.class);
+            log.info("[BlockChainMapperImpl]Parse string to Account object succeed.");
+            return acc;
+        } catch (Exception e){
+            log.error("[BlockChainMapperImpl]QueryAccountByUserMonth falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+
+        }
+    }
+
+
 
     
 

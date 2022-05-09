@@ -1,8 +1,11 @@
 package com.example.tradingSystem.web.controller;
 
+import java.util.List;
+
 import com.alibaba.fastjson.JSONObject;
 import com.example.tradingSystem.common.Constant;
 import com.example.tradingSystem.common.Status;
+import com.example.tradingSystem.domain.Trade.Account;
 import com.example.tradingSystem.domain.User.Business;
 import com.example.tradingSystem.domain.User.Customer;
 import com.example.tradingSystem.domain.User.Superviser;
@@ -140,5 +143,35 @@ public class UserController {
         result.ok(name);
         return result;
     }
+
+    @GetMapping("/getBusInfo/{id}")
+    public JsonResult getBusInfoById(@PathVariable String id) throws Exception{
+        log.info("[getBusInfoById]Begin to get Bus Info");
+        Business bus = blockchainService.getBussinessOnChainById(id);
+        log.info("bus information, balance"+bus.getBalance());
+        JsonResult result = new JsonResult();
+        result.ok(bus);
+        return result;
+    }
+
+    @GetMapping("/getBusMonthProfit/{id}")
+    public JsonResult getBusMonthProfitById(@PathVariable String id) throws Exception{
+        log.info("[getBusMonthProfitById]getBusMonthProfit");
+        Integer res = blockchainService.getBusProfitByMonth(id);
+        JsonResult result = new JsonResult();
+        result.ok(res);
+        return result;
+    }
+
+    @GetMapping("/getBusAccountList/{id}")
+    public JsonResult getBusAccountList(@PathVariable String id) throws Exception{
+        log.info("[getBusAccountList]getBusAccountList begin");
+        List<Account> accoutList = blockchainService.getBusAccountList(id);
+        JsonResult result = new JsonResult();
+        result.ok(accoutList);
+        return result;
+    }
+
+
 
 }

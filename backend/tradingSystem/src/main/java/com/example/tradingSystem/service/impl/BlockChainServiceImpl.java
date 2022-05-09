@@ -1,11 +1,14 @@
 package com.example.tradingSystem.service.impl;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import com.alibaba.fastjson.JSONObject;
 import com.example.tradingSystem.common.Constant;
 import com.example.tradingSystem.common.Status;
 import com.example.tradingSystem.domain.Commodity.Commodity;
+import com.example.tradingSystem.domain.Trade.Account;
 import com.example.tradingSystem.domain.User.Business;
 import com.example.tradingSystem.domain.User.Customer;
 import com.example.tradingSystem.domain.User.Superviser;
@@ -167,8 +170,37 @@ public class BlockChainServiceImpl implements BlockChainService{
         return mapper.getCommoditySaledByIssuer(issuer);
     }
 
-    
+    @Override
+    public Business getBussinessOnChainById(String busId) {
+        return mapper.getBusinessById(busId);
+    }
 
+    @Override
+    public Integer getBusProfitByMonth(String bId) {
+        return mapper.getBusProfitByMonth(bId);
+    }
 
-    
+    @Override
+    public List<Account> getBusAccountList(String bId) {
+        Calendar calendar = Calendar.getInstance();
+        Integer year = calendar.get(Calendar.YEAR);
+        Integer month = calendar.get(Calendar.MONTH) + 1;
+        List<Account> res = new ArrayList<>();
+        // 当月账单
+
+        // 目前版本只允许返回当年近3个月的账单
+        int Gap = 3;
+        int count = 0;
+        for(int i = month - 1;i > 0 && count < 3;i --, count ++){
+            String monthstr = String.valueOf(month);
+            String yearstr = String.valueOf(year);
+            if (mapper.ExistAccountCheck(bId, monthstr, yearstr)){
+                Account acc = mapper.getAccountByUserMonth(bId, monthstr, yearstr);
+                res.add(acc);
+            }
+        }
+        return res;
+
+    }
+
 }
