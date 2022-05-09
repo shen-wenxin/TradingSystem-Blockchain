@@ -152,6 +152,21 @@ public class BlockChainServiceImpl implements BlockChainService{
         return mapper.getCommodityOnSale();
     }
 
+    @Override
+    public Boolean createBuyTrade(String tTime, String price, String bId, String sId, String cId) {
+        return mapper.createBuyTrade(tTime, price, bId, sId, cId);
+    }
+
+    @Override
+    public List<Commodity> getCommodityBaughtByCus(String customer) {
+        return mapper.getCommodityBaughtByCus(customer);
+    }
+
+    @Override
+    public List<Commodity> getCommoditySaledByBus(String issuer) {
+        return mapper.getCommoditySaledByIssuer(issuer);
+    }
+
     
 
 

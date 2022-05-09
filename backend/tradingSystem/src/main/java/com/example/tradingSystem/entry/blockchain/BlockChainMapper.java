@@ -35,6 +35,13 @@ public interface BlockChainMapper {
     Boolean createCommodity(String name, String price, String issuer, String isserName);
     List<Commodity> getCommodityOnSaleByIssuer(String issuer);
     List<Commodity> getCommodityOnSale();
+    List<Commodity> getCommodityBaughtByCus(String customer);
+    List<Commodity> getCommoditySaledByIssuer(String issuer);
+
+    // trade
+    Boolean createBuyTrade(String tTime, String price, String bId, String sId, String cId);
+
+
 
 
 

@@ -2,7 +2,6 @@ package com.example.tradingSystem.service.impl;
 
 import java.util.List;
 
-import com.example.tradingSystem.domain.User.Superviser;
 import com.example.tradingSystem.domain.User.User;
 import com.example.tradingSystem.entry.user.UserMapper;
 import com.example.tradingSystem.service.UserService;

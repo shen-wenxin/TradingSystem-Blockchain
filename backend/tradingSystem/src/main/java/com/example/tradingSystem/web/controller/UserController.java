@@ -46,13 +46,9 @@ public class UserController {
         log.info("[REGISTER]Begin to register.");
 
         String account = user.getAccount();
-        log.info("account : {}", account);
         String name = user.getName();
-        log.info("name : {}", name);
         String password = user.getPassword();
-        log.info("password : {}", password);
         Integer role = user.getRole();
-        log.info("role : {}",role);
 
         // 判断参数是否为空
         if (account.isEmpty() || name.isEmpty() || password.isEmpty() || role == null){
