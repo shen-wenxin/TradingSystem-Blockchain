@@ -45,6 +45,19 @@ func (s *SmartContract) QueryAccountByUserMonth(ctx contractapi.TransactionConte
 
 }
 
+func (s *SmartContract) ExistAccountByUserMonth(ctx contractapi.TransactionContextInterface,
+	user string, month string, year string)(bool, error){
+	accountId := PREFIX_ID_ACCOUNT + user + month + year
+	accountAsBytes, err := ctx.GetStub().GetState(accountId)
+	if err != nil {
+		return false, err
+	}
+	if accountAsBytes == nil {
+		return false, nil
+	}
+	return true, nil
+}
+
 // 月度账单核算
 func (s *SmartContract) MonthlyAccountCheck(ctx contractapi.TransactionContextInterface, month string, year string) error {
 	// 核算 商家数据
