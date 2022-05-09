@@ -66,6 +66,7 @@ const (
 	PREFIX_ID_COMMODITY     = "0002"
 	PREFIX_ID_SUPERVISER    = "0003"
 	PREFIX_ID_TRADE         = "0004"
+	PREFIX_ID_ACCOUNT       = "0005"
 )
 
 // account state
@@ -91,17 +92,7 @@ type SuperviserQueryResult struct {
 	Record *Superviser
 }
 
-// QueryResult structure used for handling result of query customer
-type CustomerQueryResult struct {
-	Key    string `json:"Key"`
-	Record *Customer
-}
 
-// QueryResult stucture used for handling result of query bussinessman
-type BussinessQueryResult struct {
-	Key    string `json:"Key"`
-	Record *Business
-}
 
 // InitLedger adds a base set of cars to the ledger
 func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
@@ -120,8 +111,6 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 	}
 	return nil
 }
-
-
 
 // idOnChainCheck check if the id has been used as the key on blockchain
 func (s *SmartContract) idOnChainCheck(ctx contractapi.TransactionContextInterface, id string) (bool, error) {

@@ -25,9 +25,9 @@ type Customer struct {
 
 //============customer============
 // QueryAllSuperviser returns all Supervisers found in world state
-func (s *SmartContract) QueryAllCustomer(ctx contractapi.TransactionContextInterface) ([]CustomerQueryResult, error) {
-	startKey := PREFIX_ID_CUSTOMER + strings.Repeat("0", 11)
-	endKey := PREFIX_ID_CUSTOMER + strings.Repeat("9", 11)
+func (s *SmartContract) QueryAllCustomer(ctx contractapi.TransactionContextInterface) ([]Customer, error) {
+	startKey := PREFIX_ID_CUSTOMER + strings.Repeat("0", 15)
+	endKey := PREFIX_ID_CUSTOMER + strings.Repeat("9", 15)
 
 	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
 
@@ -36,7 +36,7 @@ func (s *SmartContract) QueryAllCustomer(ctx contractapi.TransactionContextInter
 	}
 	defer resultsIterator.Close()
 
-	results := []CustomerQueryResult{}
+	results := []Customer{}
 
 	for resultsIterator.HasNext() {
 		queryResponse, err := resultsIterator.Next()
@@ -48,8 +48,7 @@ func (s *SmartContract) QueryAllCustomer(ctx contractapi.TransactionContextInter
 			customer := new(Customer)
 			_ = json.Unmarshal(queryResponse.Value, customer)
 
-			queryResult := CustomerQueryResult{Key: queryResponse.Key, Record: customer}
-			results = append(results, queryResult)
+			results = append(results, *customer)
 		}
 	}
 	return results, nil
@@ -76,7 +75,7 @@ func (s *SmartContract) CreateCustomer(ctx contractapi.TransactionContextInterfa
 		Phone:           phone,
 		DiscountList:    []string{},
 		CommodityIdList: []string{},
-		Balance:         0,
+		Balance:         100000,
 		Currency:        CURRENCY_RMB,
 		State:           ACCOUNT_STATE_INVALID,
 		LastUpdateTime:  strconv.FormatInt(time.Now().Unix(), 10),
@@ -110,9 +109,9 @@ func (s *SmartContract) QueryCustomer(ctx contractapi.TransactionContextInterfac
 	return customer, nil
 }
 
-func (s *SmartContract) QueryCustomerName(ctx contractapi.TransactionContextInterface,cid string)(string, error){
+func (s *SmartContract) QueryCustomerName(ctx contractapi.TransactionContextInterface, cid string) (string, error) {
 
-	if !strings.HasPrefix(cid, PREFIX_ID_CUSTOMER){
+	if !strings.HasPrefix(cid, PREFIX_ID_CUSTOMER) {
 		return "", fmt.Errorf(ERROR_CODE_ILLEGALID)
 	}
 
@@ -140,3 +139,38 @@ func (s *SmartContract) DeleteCustomer(ctx contractapi.TransactionContextInterfa
 	return ctx.GetStub().DelState(id)
 
 }
+
+func (s *SmartContract) ReduceCustomerBalance(ctx contractapi.TransactionContextInterface, id string, price int64) error {
+
+	cus, err:= s.QueryCustomer(ctx, id)
+	if err != nil{
+		return err
+	}
+	if price > cus.Balance {
+		return fmt.Errorf("not enough mondy")
+	}
+
+	cus.Balance = cus.Balance - price
+
+	if cus.Balance < 0{
+		return fmt.Errorf("not enough mondy")
+	}
+
+	cusAsBytes, _ := json.Marshal(cus)
+	return ctx.GetStub().PutState(cus.Id, cusAsBytes)
+}
+
+// 返回消费者的余额
+func (s *SmartContract) QueryCusBalance(ctx contractapi.TransactionContextInterface,
+	cid string)(int64, error){
+	cus, err := s.QueryCustomer(ctx, cid)
+
+	if err != nil{
+		return 0, err
+	}
+
+	return cus.Balance, nil
+
+}
+
+

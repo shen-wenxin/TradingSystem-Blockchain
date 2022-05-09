@@ -10,7 +10,6 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
-
 // t_bussiness_account
 type Business struct {
 	Id              string   `json:"id"`              // Id号，全局唯一
@@ -77,4 +76,55 @@ func (s *SmartContract) CreateBusiness(ctx contractapi.TransactionContextInterfa
 
 	businessAsBytes, _ := json.Marshal(business)
 	return ctx.GetStub().PutState(business.Id, businessAsBytes)
+}
+
+// 返回所有的商家数据
+func (s *SmartContract) QueryAllBussniss(ctx contractapi.TransactionContextInterface) ([]Business, error) {
+	startKey := PREFIX_ID_BUSSINIESSMAN + strings.Repeat("0", 15)
+	endKey := PREFIX_ID_BUSSINIESSMAN + strings.Repeat("9", 15)
+
+	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
+
+	if err != nil {
+		return nil, err
+	}
+	defer resultsIterator.Close()
+
+	results := []Business{}
+
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
+		if err != nil {
+			return nil, err
+		}
+		business := new(Business)
+		_ = json.Unmarshal(queryResponse.Value, business)
+		results = append(results, *business)
+	}
+	return results, nil
+
+}
+
+func (s *SmartContract) QueryBusBalance(ctx contractapi.TransactionContextInterface, bid string)(int64, error){
+
+	bus, err := s.QueryBusiness(ctx,bid)
+
+	if err != nil{
+		return 0, err
+	}
+
+	return bus.Balance, nil
+}
+// 增加商家的余额
+func(s *SmartContract) AddBusBalance(ctx contractapi.TransactionContextInterface, bid string, price int64)(error){
+
+	bus, err := s.QueryBusiness(ctx,bid)
+
+	if err != nil{
+		return err
+	}
+	bus.Balance = bus.Balance + price
+
+	businessAsBytes, _ := json.Marshal(bus)
+	return ctx.GetStub().PutState(bus.Id, businessAsBytes)
 }
