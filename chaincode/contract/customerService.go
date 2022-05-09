@@ -17,10 +17,11 @@ type Customer struct {
 	Phone           string   `json:"phone"`           // 消费者联系方式
 	DiscountList    []string `json:"discountList"`    // 优惠卷id表
 	CommodityIdList []string `json:"commodityIdList"` //拥有商品id 表
-	Balance         int64    `json:"balance"`         // 余额
-	Currency        string   `json:"currency"`        //币种
-	State           bool     `json:"state"`           // 状态
-	LastUpdateTime  string   `json:"lastUpdateTime"`  // 最近更新时间
+	CommmodityCount int64    `json:"commmodityCount"`// 已购买商品数量统计
+	Balance         int64    `json:"balance"`        // 余额
+	Currency        string   `json:"currency"`       //币种
+	State           bool     `json:"state"`          // 状态
+	LastUpdateTime  string   `json:"lastUpdateTime"` // 最近更新时间
 }
 
 //============customer============
@@ -140,10 +141,11 @@ func (s *SmartContract) DeleteCustomer(ctx contractapi.TransactionContextInterfa
 
 }
 
-func (s *SmartContract) ReduceCustomerBalance(ctx contractapi.TransactionContextInterface, id string, price int64) error {
+func (s *SmartContract) ReduceCustomerBalance(ctx contractapi.TransactionContextInterface, 
+	id string, price int64, commodityId string) error {
 
-	cus, err:= s.QueryCustomer(ctx, id)
-	if err != nil{
+	cus, err := s.QueryCustomer(ctx, id)
+	if err != nil {
 		return err
 	}
 	if price > cus.Balance {
@@ -152,9 +154,11 @@ func (s *SmartContract) ReduceCustomerBalance(ctx contractapi.TransactionContext
 
 	cus.Balance = cus.Balance - price
 
-	if cus.Balance < 0{
+	if cus.Balance < 0 {
 		return fmt.Errorf("not enough mondy")
 	}
+	cus.CommmodityCount = cus.CommmodityCount + 1
+	cus.CommodityIdList = append(cus.CommodityIdList, commodityId)
 
 	cusAsBytes, _ := json.Marshal(cus)
 	return ctx.GetStub().PutState(cus.Id, cusAsBytes)
@@ -162,15 +166,13 @@ func (s *SmartContract) ReduceCustomerBalance(ctx contractapi.TransactionContext
 
 // 返回消费者的余额
 func (s *SmartContract) QueryCusBalance(ctx contractapi.TransactionContextInterface,
-	cid string)(int64, error){
+	cid string) (int64, error) {
 	cus, err := s.QueryCustomer(ctx, cid)
 
-	if err != nil{
+	if err != nil {
 		return 0, err
 	}
 
 	return cus.Balance, nil
 
 }
-
-

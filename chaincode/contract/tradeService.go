@@ -44,12 +44,12 @@ func (s *SmartContract) CreateBuyTrade(ctx contractapi.TransactionContextInterfa
 	pri, _ := strconv.Atoi(price)
 
 	// 更改cus状态
-	err := s.ReduceCustomerBalance(ctx, bId, int64(pri))
+	err := s.ReduceCustomerBalance(ctx, bId, int64(pri), cId)
 	if err != nil {
 		return err
 	}
 
-	err = s.AddBusBalance(ctx, sId, int64(pri))
+	err = s.AddBusBalance(ctx, sId, int64(pri), cId)
 	if err != nil {
 		return err
 	}
@@ -162,6 +162,41 @@ func (s *SmartContract) QueryAllTrade(ctx contractapi.TransactionContextInterfac
 		
 	}
 	return results, nil
+}
+
+// 统计某商家(by bussinessId/salerId)在某月(month)的盈利额
+func (s *SmartContract) GetBusProfitByMonth(ctx contractapi.TransactionContextInterface, 
+	busnissId string, month string, year string)(int, error){
+	trades, err := s.QueryMonthTradeByBusiness(ctx, busnissId, month, year)
+
+	if err != nil{
+		return 0,err
+	}
+
+	profit := 0
+
+	for _, trade := range trades{
+		profit = profit + int(trade.Price)
+	}
+	return profit, nil
+
+}
+
+// 统计某用户(by buyerId/ customerId) 在某月(month)的消费额度
+func(s *SmartContract) GetCusProfitByMonth(ctx contractapi.TransactionContextInterface,
+customerId string, month string, year string)(int, error){
+	trades, err := s.QueryMonthTradeByCus(ctx, customerId, month, year)
+
+	if err != nil{
+		return 0,nil
+	}
+
+	profit := 0
+
+	for _,trade := range trades{
+		profit = profit + int(trade.Price)
+	}
+	return profit, nil
 }
 
 // 查询某商家(by bussinessId/salerId)在某月(month)的交易数据

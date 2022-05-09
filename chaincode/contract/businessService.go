@@ -16,6 +16,7 @@ type Business struct {
 	Name            string   `json:"name"`            // 名字
 	Phone           string   `json:"phone"`           // 商家联系方式
 	CommodityIdList []string `json:"commodityIdList"` // 商品表
+	CommodityCount  int64    `json:"commodityCount"`  // 已卖出商品数量统计
 	Balance         int64    `json:"balance"`         // 余额
 	Currency        string   `json:"currency"`        // 币种
 	DiscountList    []string `json:"discountList"`    // 派发的优惠卷
@@ -67,6 +68,7 @@ func (s *SmartContract) CreateBusiness(ctx contractapi.TransactionContextInterfa
 		Name:            name,
 		Phone:           phone,
 		CommodityIdList: []string{},
+		CommodityCount:  0,
 		Balance:         0,
 		Currency:        CURRENCY_RMB,
 		DiscountList:    []string{},
@@ -105,26 +107,32 @@ func (s *SmartContract) QueryAllBussniss(ctx contractapi.TransactionContextInter
 
 }
 
-func (s *SmartContract) QueryBusBalance(ctx contractapi.TransactionContextInterface, bid string)(int64, error){
+func (s *SmartContract) QueryBusBalance(ctx contractapi.TransactionContextInterface, bid string) (int64, error) {
 
-	bus, err := s.QueryBusiness(ctx,bid)
+	bus, err := s.QueryBusiness(ctx, bid)
 
-	if err != nil{
+	if err != nil {
 		return 0, err
 	}
 
 	return bus.Balance, nil
 }
+
 // 增加商家的余额
-func(s *SmartContract) AddBusBalance(ctx contractapi.TransactionContextInterface, bid string, price int64)(error){
+func (s *SmartContract) AddBusBalance(ctx contractapi.TransactionContextInterface, 
+	bid string, price int64, commodityId string) error {
 
-	bus, err := s.QueryBusiness(ctx,bid)
+	bus, err := s.QueryBusiness(ctx, bid)
 
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	bus.Balance = bus.Balance + price
 
+	bus.CommodityCount = bus.CommodityCount + 1
+	bus.CommodityIdList = append(bus.CommodityIdList, commodityId)
+
 	businessAsBytes, _ := json.Marshal(bus)
 	return ctx.GetStub().PutState(bus.Id, businessAsBytes)
 }
+
