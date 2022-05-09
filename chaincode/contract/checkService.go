@@ -29,32 +29,20 @@ const (
 )
 
 func (s *SmartContract) QueryAccountByUserMonth(ctx contractapi.TransactionContextInterface,
-	user string, month string, year string) (*Account, error, bool) {
+	user string, month string, year string) (*Account, error) {
 	// 返回该用户上一月的账单
-	resultIterator, err := ctx.GetStub().GetStateByPartialCompositeKey(INDEXNAME_ACCOUNT_USER_YEAR_MONTH_ID, []string{user, year, month})
+	accountId := PREFIX_ID_ACCOUNT + user + month + year
+	accountAsBytes, err := ctx.GetStub().GetState(accountId)
 	if err != nil {
-		return nil, err, false
+		return nil, fmt.Errorf(ERROR_CODE_GETCHAINFAILED)
 	}
-	defer resultIterator.Close()
-
-	result := new(Account)
-	for resultIterator.HasNext() {
-		item, _ := resultIterator.Next()
-		_, compositeKeyParts, err := ctx.GetStub().SplitCompositeKey(item.Key)
-
-		if err != nil {
-			return nil, err, false
-		}
-		id := compositeKeyParts[3]
-
-		accountAsBytes, err := ctx.GetStub().GetState(id)
-		if err != nil {
-			return nil, err, false
-		}
-		_ = json.Unmarshal(accountAsBytes, result)
-		return result, nil, true
+	if accountAsBytes == nil {
+		return nil, fmt.Errorf(ERROR_CODE_UNEXISTDATA)
 	}
-	return nil, nil, false
+	acount := new(Account)
+	_ = json.Unmarshal(accountAsBytes, acount)
+	return acount, nil
+
 }
 
 // 月度账单核算
@@ -249,11 +237,11 @@ func (s *SmartContract) getUserLastMonthAccount(ctx contractapi.TransactionConte
 	}
 	month = strconv.FormatInt(int64(monthInt), 10)
 	year = strconv.FormatInt(int64(yearInt), 10)
-	account, err, exist := s.QueryAccountByUserMonth(ctx, id, month, year)
+	account, err := s.QueryAccountByUserMonth(ctx, id, month, year)
 	if err != nil {
 		return 0, err
 	}
-	if exist == false {
+	if account == nil {
 		// 不存在上个月的账单
 		return 0, nil
 	}
