@@ -21,6 +21,7 @@ import com.example.tradingSystem.common.Constant;
 import com.example.tradingSystem.common.Status;
 import com.example.tradingSystem.domain.Commodity.Commodity;
 import com.example.tradingSystem.domain.Trade.Account;
+import com.example.tradingSystem.domain.Trade.Trade;
 import com.example.tradingSystem.domain.User.Business;
 import com.example.tradingSystem.domain.User.Customer;
 import com.example.tradingSystem.domain.User.Superviser;
@@ -261,7 +262,7 @@ public class BlockChainMapperImpl implements BlockChainMapper{
 
         }
         // 生成商品id
-        String random =String.valueOf((int)((Math.random()*9+1)*100000)); //生成 6位随机数
+        String random =String.valueOf((int)((Math.random()*9+1)*1000)); //生成 4位随机数
         String id = Constant.PREFIX_ID_COMMIDITY + random + issuer;
 
         try{
@@ -411,7 +412,7 @@ public class BlockChainMapperImpl implements BlockChainMapper{
             String month = String.valueOf(calendar.get(Calendar.MONTH) + 1);
             log.info("year is " + year + ", month is "+ month);
             String result = new String(this.contract.evaluateTransaction("GetBusProfitByMonth", bId, month,year));
-            log.info("[Fabric]QueryBusiness Succeed. result : "+ result);
+            log.info("[Fabric]GetBusProfitByMonth Succeed. result : "+ result);
             Integer res = Integer.parseInt(result);
             log.info("[BlockChainMapperImpl]Parse string to int object succeed.");
             return res;
@@ -421,6 +422,31 @@ public class BlockChainMapperImpl implements BlockChainMapper{
 
         }
     }
+
+    @Override
+    public Integer getCusSpentByMonth(String cId) {
+        if (! cId.startsWith(Constant.PREFIX_ID_CUSTOMER)){
+            log.info("id param wrong");
+            throw new BussinessException(Status.FAIL_INVALID_PARAM.code());
+        }
+        try{
+            
+		    Calendar calendar = Calendar.getInstance();
+            String year = String.valueOf(calendar.get(Calendar.YEAR));
+            String month = String.valueOf(calendar.get(Calendar.MONTH) + 1);
+            log.info("year is " + year + ", month is "+ month);
+            String result = new String(this.contract.evaluateTransaction("GetCusProfitByMonth", cId, month,year));
+            log.info("[Fabric]GetCusProfitByMonth Succeed. result : "+ result);
+            Integer res = Integer.parseInt(result);
+            log.info("[BlockChainMapperImpl]Parse string to int object succeed.");
+            return res;
+        } catch (Exception e){
+            log.error("[BlockChainMapperImpl]GetCusProfitByMonth falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+        }
+    }
+
+
 
     @Override
     public Account getAccountByUserMonth(String userId, String month, String year) {
@@ -436,6 +462,91 @@ public class BlockChainMapperImpl implements BlockChainMapper{
 
         }
     }
+
+    @Override
+    public Customer getCustomerById(String id) {
+        if (! id.startsWith(Constant.PREFIX_ID_CUSTOMER)){
+            log.info("id param wrong");
+            throw new BussinessException(Status.FAIL_INVALID_PARAM.code());
+        }
+        try{
+            String result = new String(this.contract.evaluateTransaction("QueryCustomer", id));
+            log.info("[Fabric]QueryCustomer Succeed.");
+            Customer cus = JSON.parseObject(result, Customer.class);
+            log.info("[BlockChainMapperImpl]Parse string to Customer object succeed.");
+            return cus;
+        }catch (Exception e){
+            log.error("[BlockChainMapperImpl]QueryCustomer falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+        }
+    }
+
+    @Override
+    public List<Business> getAllBusiness() {
+        try {
+            String result = new String(this.contract.evaluateTransaction("QueryAllBussniss"));
+            log.info("[Fabric]QueryAllBussniss Succeed.");
+            List<Business> res = new ArrayList<>();
+            res = JSON.parseArray(result, Business.class);
+            log.info("[BlockChainMapperImpl]Parse string to Business object succeed.");
+            return res;
+        } catch (Exception e){
+            log.error("[BlockChainMapperImpl]QueryAllBussniss falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+        }
+        
+    }
+
+    @Override
+    public List<Customer> getAllCustomers() {
+        try {
+            String result = new String(this.contract.evaluateTransaction("QueryAllCustomer"));
+            log.info("[Fabric]QueryAllCustomer Succeed.");
+            List<Customer> res = new ArrayList<>();
+            res = JSON.parseArray(result, Customer.class);
+            log.info("[BlockChainMapperImpl]Parse string to Customer object succeed.");
+            return res;
+        } catch (Exception e){
+            log.error("[BlockChainMapperImpl]QueryAllCustomer falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+        }
+    }
+
+    @Override
+    public List<Commodity> getAllComodity() {
+        try {
+            String result = new String(this.contract.evaluateTransaction("QueryAllCommodity"));
+            log.info("[Fabric]QueryAllCommodity Succeed.");
+            List<Commodity> res = new ArrayList<>();
+            res = JSON.parseArray(result, Commodity.class);
+            log.info("[BlockChainMapperImpl]Parse string to Commodity object succeed.");
+            return res;
+        } catch (Exception e){
+            log.error("[BlockChainMapperImpl]QueryAllCommodity falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+        }
+    }
+
+    @Override
+    public List<Trade> getAllTrade() {
+        try {
+            String result = new String(this.contract.evaluateTransaction("QueryAllTrade"));
+            log.info("[Fabric]QueryAllTrade Succeed.");
+            List<Trade> res = new ArrayList<>();
+            res = JSON.parseArray(result, Trade.class);
+            log.info("[BlockChainMapperImpl]Parse string to trade object succeed.");
+            return res;
+        } catch (Exception e){
+            log.error("[BlockChainMapperImpl]QueryAllTrade falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+        }
+    }
+
+    
+
+
+
+    
 
 
 

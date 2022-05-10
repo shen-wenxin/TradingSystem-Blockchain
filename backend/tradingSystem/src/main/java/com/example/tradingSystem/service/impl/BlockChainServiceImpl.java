@@ -9,6 +9,7 @@ import com.example.tradingSystem.common.Constant;
 import com.example.tradingSystem.common.Status;
 import com.example.tradingSystem.domain.Commodity.Commodity;
 import com.example.tradingSystem.domain.Trade.Account;
+import com.example.tradingSystem.domain.Trade.Trade;
 import com.example.tradingSystem.domain.User.Business;
 import com.example.tradingSystem.domain.User.Customer;
 import com.example.tradingSystem.domain.User.Superviser;
@@ -181,7 +182,7 @@ public class BlockChainServiceImpl implements BlockChainService{
     }
 
     @Override
-    public List<Account> getBusAccountList(String bId) {
+    public List<Account> getUserAccountList(String Id) {
         Calendar calendar = Calendar.getInstance();
         Integer year = calendar.get(Calendar.YEAR);
         Integer month = calendar.get(Calendar.MONTH) + 1;
@@ -194,13 +195,45 @@ public class BlockChainServiceImpl implements BlockChainService{
         for(int i = month - 1;i > 0 && count < 3;i --, count ++){
             String monthstr = String.valueOf(month);
             String yearstr = String.valueOf(year);
-            if (mapper.ExistAccountCheck(bId, monthstr, yearstr)){
-                Account acc = mapper.getAccountByUserMonth(bId, monthstr, yearstr);
+            if (mapper.ExistAccountCheck(Id, monthstr, yearstr)){
+                Account acc = mapper.getAccountByUserMonth(Id, monthstr, yearstr);
                 res.add(acc);
             }
         }
         return res;
 
     }
+
+    @Override
+    public Customer getCustomerOnChianById(String cId) {
+        return mapper.getCustomerById(cId);
+    }
+
+    @Override
+    public Integer getCusSpentByMonth(String cId) {
+        return mapper.getCusSpentByMonth(cId);
+    }
+
+    @Override
+    public List<Business> getAllBusiness() {
+        return mapper.getAllBusiness();
+    }
+
+    @Override
+    public List<Customer> getAllCustomer() {
+        return mapper.getAllCustomers();
+    }
+
+    @Override
+    public List<Commodity> getAllCommodity() {
+        return mapper.getAllComodity();
+    }
+
+    @Override
+    public List<Trade> getAllTrades() {
+        return mapper.getAllTrade();
+    }
+
+  
 
 }

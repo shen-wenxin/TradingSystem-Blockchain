@@ -5,7 +5,9 @@ import java.util.List;
 import com.alibaba.fastjson.JSONObject;
 import com.example.tradingSystem.common.Constant;
 import com.example.tradingSystem.common.Status;
+import com.example.tradingSystem.domain.Commodity.Commodity;
 import com.example.tradingSystem.domain.Trade.Account;
+import com.example.tradingSystem.domain.Trade.Trade;
 import com.example.tradingSystem.domain.User.Business;
 import com.example.tradingSystem.domain.User.Customer;
 import com.example.tradingSystem.domain.User.Superviser;
@@ -144,6 +146,7 @@ public class UserController {
         return result;
     }
 
+    // 通过bid 获取business 信息
     @GetMapping("/getBusInfo/{id}")
     public JsonResult getBusInfoById(@PathVariable String id) throws Exception{
         log.info("[getBusInfoById]Begin to get Bus Info");
@@ -154,6 +157,7 @@ public class UserController {
         return result;
     }
 
+    // 获取该商家该月的收益
     @GetMapping("/getBusMonthProfit/{id}")
     public JsonResult getBusMonthProfitById(@PathVariable String id) throws Exception{
         log.info("[getBusMonthProfitById]getBusMonthProfit");
@@ -163,14 +167,85 @@ public class UserController {
         return result;
     }
 
-    @GetMapping("/getBusAccountList/{id}")
+    @GetMapping("/getUserAccountList/{id}")
     public JsonResult getBusAccountList(@PathVariable String id) throws Exception{
         log.info("[getBusAccountList]getBusAccountList begin");
-        List<Account> accoutList = blockchainService.getBusAccountList(id);
+        List<Account> accoutList = blockchainService.getUserAccountList(id);
         JsonResult result = new JsonResult();
         result.ok(accoutList);
         return result;
     }
+
+    // 通过 cId 获取 Cus 信息
+    @GetMapping("/getCusInfo/{id}")
+    public JsonResult getCusInfoById(@PathVariable String id) throws Exception{
+        log.info("[getCusInfoById]Begin to get Bus Info");
+        Customer cus = blockchainService.getCustomerOnChianById(id);
+        JsonResult result = new JsonResult();
+        result.ok(cus);
+        return result;
+    }
+
+    // 获取该消费者该月的消费
+    @GetMapping("/getCusMonthSpent/{id}")
+    public JsonResult getCusMonthSpentById(@PathVariable String id) throws Exception{
+        log.info("[getCusMonthSpentById]getCusMonthSpentById");
+        Integer res = blockchainService.getCusSpentByMonth(id);
+        JsonResult result = new JsonResult();
+        result.ok(res);
+        return result;
+    }
+
+    // 获取所有商家信息
+    @GetMapping("/getAllBusInfo")
+    public JsonResult getAllBusInfo() throws Exception{
+        log.info("[getAllBusInfo]getAllBusInfo");
+        List<Business> res = blockchainService.getAllBusiness();
+        JsonResult result = new JsonResult();
+        result.ok(res);
+        return result;
+    }
+
+    // 获取所有消费者信息
+    @GetMapping("/getAllCusInfo")
+    public JsonResult getAllCusInfo() throws Exception{
+        log.info("[getAllCusInfo]getAllCusInfo");
+        List<Customer> res = blockchainService.getAllCustomer();
+        JsonResult result = new JsonResult();
+        result.ok(res);
+        return result;
+    }
+
+    // 获取所有商品信息
+    @GetMapping("/getAllCommodity")
+    public JsonResult getAllCommodityInfo() throws Exception{
+        log.info("[getAllCommodityInfo]getAllCommodityInfo");
+        List<Commodity> res = blockchainService.getAllCommodity();
+        JsonResult result = new JsonResult();
+        result.ok(res);
+        return result;
+    }
+
+    // 获取所有交易信息
+    @GetMapping("/getAllTrade")
+    public JsonResult getAllTradeInfo() throws Exception{
+        log.info("[getAllTrade]getAllTrade");
+        List<Trade> res = blockchainService.getAllTrades();
+        JsonResult result = new JsonResult();
+        result.ok(res);
+        return result;
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
