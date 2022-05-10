@@ -335,8 +335,8 @@ func (s *SmartContract) QueryAllCommoditybeBaughtByCustomer(ctx contractapi.Tran
 
 // 得到所有商品
 func (s *SmartContract) QueryAllCommodity(ctx contractapi.TransactionContextInterface) ([]Commmodity, error) {
-	startKey := PREFIX_ID_COMMODITY + strings.Repeat("0", 11)
-	endKey := PREFIX_ID_COMMODITY + strings.Repeat("9", 11)
+	startKey := PREFIX_ID_COMMODITY + strings.Repeat("0", 20)
+	endKey := PREFIX_ID_COMMODITY + strings.Repeat("9", 20)
 
 	resultsIterator, err := ctx.GetStub().GetStateByRange(startKey, endKey)
 

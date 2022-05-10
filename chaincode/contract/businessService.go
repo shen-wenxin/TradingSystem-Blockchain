@@ -149,7 +149,7 @@ func (s *SmartContract) addBusCommodityList(ctx contractapi.TransactionContextIn
 }
 
 func removeElemfromList(oldList[]string, ele string)([]string){
-	var res []string
+	res := []string{}
 	for _, str := range oldList{
 		if str != ele{
 			res = append(res, str)

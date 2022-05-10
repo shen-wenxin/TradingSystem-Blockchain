@@ -14,7 +14,7 @@ import (
 type Trade struct {
 	Id             string `json:"tradeId"`        // 交易id号
 	TradeTime      string `json:"tradeTime"`      // 交易时间(时间戳格式存储)
-	TradeDay       string `json:"TradeDay"`       // 交易当前日
+	TradeDay       string `json:"tradeDay"`       // 交易当前日
 	TradeMonth     string `json:"tradeMonth"`     // 交易月份
 	TradeYear      string `json:"tradeYear"`      // 交易年份
 	Price          int64  `json:"price"`          // 价格
