@@ -2,6 +2,8 @@ package com.example.tradingSystem.web.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.alibaba.fastjson.JSONObject;
 import com.example.tradingSystem.common.Constant;
 import com.example.tradingSystem.common.Status;
@@ -13,8 +15,8 @@ import com.example.tradingSystem.domain.User.Customer;
 import com.example.tradingSystem.domain.User.Superviser;
 import com.example.tradingSystem.domain.User.User;
 import com.example.tradingSystem.service.BlockChainService;
-import com.example.tradingSystem.service.TokenService;
 import com.example.tradingSystem.service.UserService;
+import com.example.tradingSystem.util.JwtUtil;
 import com.example.tradingSystem.web.exception.BussinessException;
 import com.example.tradingSystem.web.exception.JsonResult;
 
@@ -31,18 +33,18 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@CrossOrigin
-@RequestMapping(value = "/usr")     
+@CrossOrigin  
 public class UserController {
 
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private TokenService tokenService;
 
     @Autowired
     private BlockChainService blockchainService;
+
+    @Autowired
+    private HttpServletRequest  request;
 
 
     // 注册
@@ -107,13 +109,13 @@ public class UserController {
         }
         // 校验 
         if (password.equals(userData.getPassword())){
-            log.info("用户[" + account + "]登录认证通过");
+            log.info("user[" + account + "]password");
         }else{
             throw new BussinessException(Status.ACCOUNT_PASSWORD_ERROR.code());
         }
 
         // 登录成功 生成token
-        String token = tokenService.getToken(user);
+        String token = JwtUtil.sign(user);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("token", token);
         JsonResult result = new JsonResult();
@@ -122,9 +124,22 @@ public class UserController {
         return result;
     }
 
-    @GetMapping("/getUserInfo/{id}")
-    public JsonResult getUserInfo(@PathVariable String id) throws Exception{
+    @PostMapping("/logout")
+    public JsonResult logout() throws Exception{
+
+        // 暂时没想好要干啥
+        JsonResult result = new JsonResult();
+        result.success();
+        return result;
+    }
+
+    @GetMapping("/usr/getUserInfo")
+    public JsonResult getUserInfo() throws Exception{
+        String token = request.getHeader("token");
         log.info("[GETUSERINFO]Begin to get User Info");
+
+        String id = JwtUtil.getUserId(token);
+        log.info("token is"+ token);
         User userData = userService.getUser(id);
         log.info("account :{} role is {}", userData.getAccount(), userData.getRole());
         
@@ -137,7 +152,7 @@ public class UserController {
         return result;
     }
 
-    @GetMapping("/getUserNameById/{id}")
+    @GetMapping("/usr/getUserNameById/{id}")
     public JsonResult getUserNameById(@PathVariable String id) throws Exception{
         log.info("[getUserNameById]Begin to getUserNameById");
         String name = blockchainService.getUserNameById(id);
@@ -147,7 +162,7 @@ public class UserController {
     }
 
     // 通过bid 获取business 信息
-    @GetMapping("/getBusInfo/{id}")
+    @GetMapping("/usr/getBusInfo/{id}")
     public JsonResult getBusInfoById(@PathVariable String id) throws Exception{
         log.info("[getBusInfoById]Begin to get Bus Info");
         Business bus = blockchainService.getBussinessOnChainById(id);
@@ -158,7 +173,7 @@ public class UserController {
     }
 
     // 获取该商家该月的收益
-    @GetMapping("/getBusMonthProfit/{id}")
+    @GetMapping("/usr/getBusMonthProfit/{id}")
     public JsonResult getBusMonthProfitById(@PathVariable String id) throws Exception{
         log.info("[getBusMonthProfitById]getBusMonthProfit");
         Integer res = blockchainService.getBusProfitByMonth(id);
@@ -167,7 +182,7 @@ public class UserController {
         return result;
     }
 
-    @GetMapping("/getUserAccountList/{id}")
+    @GetMapping("/usr/getUserAccountList/{id}")
     public JsonResult getBusAccountList(@PathVariable String id) throws Exception{
         log.info("[getBusAccountList]getBusAccountList begin");
         List<Account> accoutList = blockchainService.getUserAccountList(id);
@@ -177,7 +192,7 @@ public class UserController {
     }
 
     // 通过 cId 获取 Cus 信息
-    @GetMapping("/getCusInfo/{id}")
+    @GetMapping("/usr/getCusInfo/{id}")
     public JsonResult getCusInfoById(@PathVariable String id) throws Exception{
         log.info("[getCusInfoById]Begin to get Bus Info");
         Customer cus = blockchainService.getCustomerOnChianById(id);
@@ -187,7 +202,7 @@ public class UserController {
     }
 
     // 获取该消费者该月的消费
-    @GetMapping("/getCusMonthSpent/{id}")
+    @GetMapping("/usr/getCusMonthSpent/{id}")
     public JsonResult getCusMonthSpentById(@PathVariable String id) throws Exception{
         log.info("[getCusMonthSpentById]getCusMonthSpentById");
         Integer res = blockchainService.getCusSpentByMonth(id);
@@ -197,7 +212,7 @@ public class UserController {
     }
 
     // 获取所有商家信息
-    @GetMapping("/getAllBusInfo")
+    @GetMapping("/usr/getAllBusInfo")
     public JsonResult getAllBusInfo() throws Exception{
         log.info("[getAllBusInfo]getAllBusInfo");
         List<Business> res = blockchainService.getAllBusiness();
@@ -207,7 +222,7 @@ public class UserController {
     }
 
     // 获取所有消费者信息
-    @GetMapping("/getAllCusInfo")
+    @GetMapping("/usr/getAllCusInfo")
     public JsonResult getAllCusInfo() throws Exception{
         log.info("[getAllCusInfo]getAllCusInfo");
         List<Customer> res = blockchainService.getAllCustomer();
@@ -216,25 +231,9 @@ public class UserController {
         return result;
     }
 
-    // 获取所有商品信息
-    @GetMapping("/getAllCommodity")
-    public JsonResult getAllCommodityInfo() throws Exception{
-        log.info("[getAllCommodityInfo]getAllCommodityInfo");
-        List<Commodity> res = blockchainService.getAllCommodity();
-        JsonResult result = new JsonResult();
-        result.ok(res);
-        return result;
-    }
+    
 
-    // 获取所有交易信息
-    @GetMapping("/getAllTrade")
-    public JsonResult getAllTradeInfo() throws Exception{
-        log.info("[getAllTrade]getAllTrade");
-        List<Trade> res = blockchainService.getAllTrades();
-        JsonResult result = new JsonResult();
-        result.ok(res);
-        return result;
-    }
+    
 
 
 

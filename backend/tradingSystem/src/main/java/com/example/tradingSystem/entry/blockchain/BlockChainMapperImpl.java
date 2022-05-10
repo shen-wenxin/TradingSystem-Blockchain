@@ -542,6 +542,22 @@ public class BlockChainMapperImpl implements BlockChainMapper{
         }
     }
 
+    @Override
+    public void monthlyAccountCheck() {
+        try{
+            Calendar calendar = Calendar.getInstance();
+            String year = String.valueOf(calendar.get(Calendar.YEAR));
+            String month = String.valueOf(calendar.get(Calendar.MONTH) + 1);
+            log.info("[Fabric]MonthlyAccountCheck, "+ month+" "+year);
+            contract.submitTransaction("MonthlyAccountCheck",month, year);
+            log.info("[Fabric]MonthlyAccountCheck Succeed.");
+        } catch (Exception e){
+            log.error("[BlockChainMapperImpl]MonthlyAccountCheck falied." + e.getMessage());
+            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+        }
+        
+    }
+
     
 
 

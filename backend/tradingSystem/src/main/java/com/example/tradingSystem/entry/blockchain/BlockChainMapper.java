@@ -72,7 +72,12 @@ public interface BlockChainMapper {
     Account getAccountByUserMonth(String userId, String month, String year);
 
     List<Trade> getAllTrade();
+
+
+    // account
+    void monthlyAccountCheck();
     
+
 
 
 

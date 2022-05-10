@@ -99,5 +99,15 @@ public class CommodityController {
         return result;
     }
 
+    // 获取所有商品信息
+    @GetMapping("/getAllCommodity")
+    public JsonResult getAllCommodityInfo() throws Exception{
+        log.info("[getAllCommodityInfo]getAllCommodityInfo");
+        List<Commodity> res = blockchainService.getAllCommodity();
+        JsonResult result = new JsonResult();
+        result.ok(res);
+        return result;
+    }
+
 
 }
