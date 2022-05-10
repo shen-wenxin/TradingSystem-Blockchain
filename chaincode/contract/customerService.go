@@ -17,11 +17,11 @@ type Customer struct {
 	Phone           string   `json:"phone"`           // 消费者联系方式
 	DiscountList    []string `json:"discountList"`    // 优惠卷id表
 	CommodityIdList []string `json:"commodityIdList"` //拥有商品id 表
-	CommmodityCount int64    `json:"commmodityCount"`// 已购买商品数量统计
-	Balance         int64    `json:"balance"`        // 余额
-	Currency        string   `json:"currency"`       //币种
-	State           bool     `json:"state"`          // 状态
-	LastUpdateTime  string   `json:"lastUpdateTime"` // 最近更新时间
+	CommmodityCount int64    `json:"commmodityCount"` // 已购买商品数量统计
+	Balance         int64    `json:"balance"`         // 余额
+	Currency        string   `json:"currency"`        //币种
+	State           bool     `json:"state"`           // 状态
+	LastUpdateTime  string   `json:"lastUpdateTime"`  // 最近更新时间
 }
 
 //============customer============
@@ -75,6 +75,7 @@ func (s *SmartContract) CreateCustomer(ctx contractapi.TransactionContextInterfa
 		Name:            name,
 		Phone:           phone,
 		DiscountList:    []string{},
+		CommmodityCount: 0,
 		CommodityIdList: []string{},
 		Balance:         100000,
 		Currency:        CURRENCY_RMB,
@@ -141,7 +142,7 @@ func (s *SmartContract) DeleteCustomer(ctx contractapi.TransactionContextInterfa
 
 }
 
-func (s *SmartContract) ReduceCustomerBalance(ctx contractapi.TransactionContextInterface, 
+func (s *SmartContract) ReduceCustomerBalance(ctx contractapi.TransactionContextInterface,
 	id string, price int64, commodityId string) error {
 
 	cus, err := s.QueryCustomer(ctx, id)
