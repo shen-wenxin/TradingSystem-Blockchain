@@ -107,7 +107,7 @@ export default {
     async submit() {
       if (this.$refs.loginForm.validate()) {
         await this.$store.dispatch("user/userLogin", this.user);
-        await this.$store.dispatch("user/getInfo", this.user);
+        await this.$store.dispatch("user/getInfo");
         await this.$store.dispatch(
           "user/generatePermittedRouteList",
           this.$store.state.user.role

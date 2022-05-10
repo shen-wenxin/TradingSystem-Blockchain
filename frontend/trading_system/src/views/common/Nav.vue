@@ -54,12 +54,12 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn icon @click="() => {}">
+      <!-- <v-btn icon @click="() => {}">
         <v-icon>mdi-magnify</v-icon>
       </v-btn>
       <v-btn icon to="/profile">
         <v-icon>mdi-account</v-icon>
-      </v-btn>
+      </v-btn> -->
       <v-btn icon @click="logout">
         <v-icon>mdi-logout-variant</v-icon>
       </v-btn>

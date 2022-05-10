@@ -19,7 +19,7 @@
                   >
                 </v-avatar>
                 <div class="text-h5 mt-6">{{username}}</div>
-                <div class="text--secondary">{{account}}</div>
+                <div class="text--secondary">{{phone}}</div>
               </section>
               <v-divider/>
 
@@ -42,21 +42,14 @@
 
               <!--通过题目进度条展示-->
               <section class="d-flex flex-column align-center my-4">
-                <div class="text--secondary mt-2 mb-4">每月收益</div>
+                <div class="text--secondary mt-2 mb-4">笑一笑</div>
                 <template>
-                  <v-sparkline
-                      :value="value"
-                      :gradient="gradient"
-                      :smooth="radius || false"
-                      :padding="padding"
-                      :line-width="width"
-                      :stroke-linecap="lineCap"
-                      :gradient-direction="gradientDirection"
-                      :fill="fill"
-                      :type="type"
-                      :auto-line-width="autoLineWidth"
-                      auto-draw
-                  ></v-sparkline>
+                  <div class="laughword">
+                  <p class="font-weight-light">
+                      人生在世,谁能比得上商人那样逍遥富乐呢?
+                  </p>
+                  </div>
+                  
                 </template>
               </section>
             </v-card>
@@ -101,86 +94,64 @@
 </template>
 
 <script>
-const gradients = [
-  ['#222'],
-  ['#444343'],
-  ['red', 'orange', 'yellow'],
-  ['purple', 'violet'],
-  ['#806780', '#7b6969', '#363434'],
-  ['#6d6d6d', '#525152', '#000000'],
-]
+import UserService from '../../api/auth/user'
+import TimeService from '../../api/time/time'
+import ResponseExtractor from '../../utils/response-extractor'
+
 
 export default {
-  name: "StuHome",
+
+  name: "BusHome",
+  mounted(){
+    this.getBusInfo()
+  },
   data() {
     return {
-      width: 2,
-      radius: 10,
-      padding: 8,
-      lineCap: 'round',
-      gradient: gradients[5],
-      value: [0, 2, 5, 9, 5, 10, 3, 5, 0, 0, 1, 8, 2, 9, 0],
-      gradientDirection: 'top',
-      gradients,
-      fill: false,
-      type: 'trend',
-      autoLineWidth: false,
-
       username: "Susan",
-      account: "1821234567",
+      phone: "1821234567",
       salesnum: "60",
       pricesum: "100",
       pricemonth: "60",
-      IncomeDetails: [
-        {
-          month: "5",
-          income: "20",
-          total: "100",
-        },
-        {
-          month: "4",
-          income: "30",
-          total: "80"
-        },
-        {
-          month: "3",
-          income: "50",
-          total: "50"
-
-        }
-      ],
-      goodsSaled: [
-        {
-          name: '苹果',
-          time: '2021-09-01 23:59:59',
-          price: "100",
-          owner: "tom",
-          showDetails: false
-        },
-        {
-          name: '操作系统',
-          time: '2021-09-09 23:59:59',
-          price: "100",
-          owner: "tom",
-          showDetails: false
-        },
-        {
-          name: '计算机网络',
-          time: '2021-12-01 23:59:59',
-          price: "100",
-          owner: "tom",
-          showDetails: false
-        }
-      ],
+      IncomeDetails: [],
 
     }
   },
-  methods: {}
+  methods: {
+    getBusInfo(){
+      UserService.getBusInfo().then((resp) => {
+        const bus = ResponseExtractor.getData(resp)
+        console.log("bus",bus)
+        this.username = bus.name
+        this.phone = bus.phone
+        this.salesnum = bus.commodityCount
+        this.pricesum = bus.balance
+        UserService.getBusMonthProfit().then((resp) => {
+          const profit = ResponseExtractor.getData(resp)
+          this.pricemonth = profit
+          var acc = {
+            month: TimeService.nowTime().month,
+            income : this.pricemonth,
+            total: this.pricesum
+          }
+            this.IncomeDetails.push(acc)
+        })
+        
+      })
+      UserService.getBusAccountList().then((resp) => {
+        const accountList = ResponseExtractor.getData(resp)
+        this.IncomeDetails.push(...accountList)
+      })
+    },
+    
+  }
 }
 </script>
 
 <style scoped>
 .main-wrapper {
   max-width: 1200px;
+}
+.laughword{
+  max-width: 140px;
 }
 </style>
