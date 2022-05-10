@@ -17,7 +17,7 @@ type Customer struct {
 	Phone           string   `json:"phone"`           // 消费者联系方式
 	DiscountList    []string `json:"discountList"`    // 优惠卷id表
 	CommodityIdList []string `json:"commodityIdList"` //拥有商品id 表
-	CommmodityCount int64    `json:"commmodityCount"` // 已购买商品数量统计
+	CommodityCount  int64    `json:"commodityCount"`  // 已购买商品数量统计
 	Balance         int64    `json:"balance"`         // 余额
 	Currency        string   `json:"currency"`        //币种
 	State           bool     `json:"state"`           // 状态
@@ -75,7 +75,7 @@ func (s *SmartContract) CreateCustomer(ctx contractapi.TransactionContextInterfa
 		Name:            name,
 		Phone:           phone,
 		DiscountList:    []string{},
-		CommmodityCount: 0,
+		CommodityCount:  0,
 		CommodityIdList: []string{},
 		Balance:         100000,
 		Currency:        CURRENCY_RMB,
@@ -158,7 +158,7 @@ func (s *SmartContract) ReduceCustomerBalance(ctx contractapi.TransactionContext
 	if cus.Balance < 0 {
 		return fmt.Errorf("not enough mondy")
 	}
-	cus.CommmodityCount = cus.CommmodityCount + 1
+	cus.CommodityCount = cus.CommodityCount + 1
 	cus.CommodityIdList = append(cus.CommodityIdList, commodityId)
 
 	cusAsBytes, _ := json.Marshal(cus)

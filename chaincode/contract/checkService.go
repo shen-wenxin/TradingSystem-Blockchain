@@ -37,7 +37,7 @@ func (s *SmartContract) QueryAccountByUserMonth(ctx contractapi.TransactionConte
 		return nil, fmt.Errorf(ERROR_CODE_GETCHAINFAILED)
 	}
 	if accountAsBytes == nil {
-		return nil, fmt.Errorf(ERROR_CODE_UNEXISTDATA)
+		return nil, nil
 	}
 	acount := new(Account)
 	_ = json.Unmarshal(accountAsBytes, acount)
