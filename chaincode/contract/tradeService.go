@@ -258,7 +258,7 @@ cusId string, month string, year string)([]Trade, error){
 		if err != nil {
 			return nil, err
 		}
-		id := compositeKeyParts[2]
+		id := compositeKeyParts[3]
 		tradeAsBytes, err := ctx.GetStub().GetState(id)
 
 		if err != nil{
