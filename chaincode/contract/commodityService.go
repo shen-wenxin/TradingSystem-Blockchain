@@ -71,6 +71,9 @@ func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterf
 		return fmt.Errorf(ERROR_CODE_PUTCHAINFAILED)
 	}
 
+	// 开始修改bussniss状态 将commidty 加入其commodityList
+	
+
 	// 开始创建复合键
 	// 名字~id号复合键
 	err = s.createCompositeKeyandSave(ctx, "name~id", []string{commodity.Name, commodity.Id})
@@ -329,8 +332,6 @@ func (s *SmartContract) QueryAllCommoditybeBaughtByCustomer(ctx contractapi.Tran
 	}
 	return result, nil
 }
-
-
 
 // 得到所有商品
 func (s *SmartContract) QueryAllCommodity(ctx contractapi.TransactionContextInterface) ([]Commmodity, error) {

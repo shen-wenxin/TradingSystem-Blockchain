@@ -118,7 +118,7 @@ func (s *SmartContract) QueryBusBalance(ctx contractapi.TransactionContextInterf
 	return bus.Balance, nil
 }
 
-// 增加商家的余额
+// 增加商家的余额, 增加已售出数量, 在commodityList中去掉该商品
 func (s *SmartContract) AddBusBalance(ctx contractapi.TransactionContextInterface, 
 	bid string, price int64, commodityId string) error {
 
@@ -130,9 +130,32 @@ func (s *SmartContract) AddBusBalance(ctx contractapi.TransactionContextInterfac
 	bus.Balance = bus.Balance + price
 
 	bus.CommodityCount = bus.CommodityCount + 1
-	bus.CommodityIdList = append(bus.CommodityIdList, commodityId)
+	bus.CommodityIdList = removeElemfromList(bus.CommodityIdList, commodityId)
 
 	businessAsBytes, _ := json.Marshal(bus)
 	return ctx.GetStub().PutState(bus.Id, businessAsBytes)
+}
+
+// 增加商家的商品list
+func (s *SmartContract) addBusCommodityList(ctx contractapi.TransactionContextInterface,
+	bid string, commodityId string) error {
+	bus, err := s.QueryBusiness(ctx, bid)
+	if err != nil {
+		return err
+	}
+	bus.CommodityIdList = append(bus.CommodityIdList, commodityId)
+	businessAsBytes, _ := json.Marshal(bus)
+	return ctx.GetStub().PutState(bus.Id, businessAsBytes)
+}
+
+func removeElemfromList(oldList[]string, ele string)([]string){
+	var res []string
+	for _, str := range oldList{
+		if str != ele{
+			res = append(res, str)
+
+		}
+	}
+	return res
 }
 
