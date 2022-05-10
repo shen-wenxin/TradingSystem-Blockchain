@@ -1,0 +1,36 @@
+.DS_Store
+node_modules
+/dist
+
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Custom
+package-lock.json
+
+/backend/tradingSystem/.vscode
+/backend/tradingSystem/.gradle
+/backend/tradingSystem/src/main/resources/crypto-config/
+
+/chaincode/contract/vendor
+
+/frontend/trading_system/.idea
+
+/frontend/trading_system/node_modules/
