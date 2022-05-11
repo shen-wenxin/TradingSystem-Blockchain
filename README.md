@@ -1,5 +1,4 @@
 # TradingSystem-Blockchain
-
 基于区块链的交易系统设计（v1.0）
 
 ## 项目介绍
@@ -64,4 +63,3 @@ gradle bootRun
 ```
 
 ### 链代码
-
