@@ -5,7 +5,9 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.example.tradingSystem.common.Status;
 import com.example.tradingSystem.domain.User.User;
+import com.example.tradingSystem.web.exception.BussinessException;
 
 import java.util.Date;
 import java.util.Map;
@@ -88,7 +90,7 @@ public class JwtUtil {
             verifier.verify(token);
             return true;
         }catch (JWTVerificationException e) {
-            throw new RuntimeException("token invalid.");
+            throw new BussinessException(Status.FAIL_INVALID_TOKEN.code());
         }
     }
 }
