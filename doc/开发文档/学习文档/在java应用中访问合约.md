@@ -59,11 +59,14 @@ Chaincode initialization is not required
 		|-main
 			|-java\com\example\tradingSystem
 			|-resourcse
+				|-cypto-config
+				|-fabric.config.properties
+				|-networkConnection.json
 ```
 
-1. 在resources文件夹下新建文件夹cypto-config
-2. 从服务器的`/fabric-samples/test-network/organizations`目录中将`ordererOrganizations`和`peerOrganizations` 复制出来，放到resource文件夹下。
+1. 从服务器的`/fabric-samples/test-network/organizations`目录中将`ordererOrganizations`和`peerOrganizations` 复制出来，放到resource/cypto-config文件夹下。
 
-3. 创建链接配置文件`networkConnection.json`[参考](https://github.com/hyperledger/fabric-gateway-java/blob/main/src/test/java/org/hyperledger/fabric/gateway/connection-tls.json)
-4. 然后[参照](https://blog.csdn.net/klay077/article/details/109189630)编写就即可。
+2. 根据需要修改链接配置文件`networkConnection.json`[参考](https://github.com/hyperledger/fabric-gateway-java/blob/main/src/test/java/org/hyperledger/fabric/gateway/connection-tls.json)，特别是ip跟端口号，需要自行修改
+
+   
 

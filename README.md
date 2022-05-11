@@ -63,3 +63,6 @@ gradle bootRun
 ```
 
 ### 链代码
+
+[链代码部署方式](https://github.com/shen-wenxin/TradingSystem-Blockchain/blob/dev/doc/%E5%BC%80%E5%8F%91%E6%96%87%E6%A1%A3/%E5%AD%A6%E4%B9%A0%E6%96%87%E6%A1%A3/%E5%A6%82%E4%BD%95%E9%83%A8%E7%BD%B2%E9%93%BE%E4%BB%A3%E7%A0%81.md)
+
