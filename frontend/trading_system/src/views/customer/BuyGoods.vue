@@ -25,6 +25,7 @@
                     text
                     v-bind="attrs"
                     v-on="on"
+                    @click="choosegood(good.id)"
                 >
                   点击购买
                 </v-btn>
@@ -33,7 +34,7 @@
                 <v-card-title class="text-h5">
                   请您确认购买信息
                 </v-card-title>
-                <v-card-text>名称: {{good.name}}<br>价格: {{good.price}}元 <br>发行者: {{good.issuer}}
+                <v-card-text>名称: {{goodchose.name}}<br>价格: {{goodchose.price}}元 <br>发行者: {{goodchose.issuer}}
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
@@ -100,15 +101,19 @@ export default {
   },
 
   methods: {
+    choosegood(index){
+      console.log(index)
+      this.goodchose = this.goods[index]
+    },
     buyGood(index){
       console.log("index = " + index)
       var tradeTime = new Date().getTime();
       const buydata = {
         "tradeTime" : tradeTime,
-        "price": this.goods[index].price,
+        "price": this.goodchose.price,
         "buyerId": store.state.user.account,
-        "salerId": this.goods[index].issuerId,
-        "commodityId": this.goods[index].commodityId,
+        "salerId": this.goodchose.issuerId,
+        "commodityId": this.goodchose.commodityId,
       }
       console.log(buydata)
       GoodService.buyGood(buydata).then((resp) => {
@@ -125,6 +130,7 @@ export default {
         console.log("getGoodList", goodsList);
         for(var i = 0;i < goodsList.length;i ++){
           var good = {
+            "id": i,
             "name": goodsList[i].name,
             "price": goodsList[i].price,
             "time": TimeService.timesampToTime(goodsList[i].lastUpdate),
@@ -141,6 +147,7 @@ export default {
   },
   data () {
     return {
+      goodchose: {},
       goodIndex: 0,
       dialog: false,
       goods :[],
