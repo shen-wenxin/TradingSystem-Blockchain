@@ -29,7 +29,7 @@ TradingSystem-BlockChain
 
 ![https://gitee.com/shen_wenxin0510/readme-pictures/raw/master/home.png](https://gitee.com/shen_wenxin0510/readme-pictures/raw/master/home.png)
 
-    我知道很丑…但是半路出家学的vue，之后再多多学习一边学习一边优化吧（
+我知道很丑…但是半路出家学的vue，之后再多多学习一边学习一边优化吧（
 
 ## 依赖
 

@@ -69,7 +69,7 @@
                 <section class="py-3 px-4">
                   <div class="text-h5 mt-3 mb-7 light-blue--text">
                     <v-icon color="light-blue">mdi-handshake</v-icon>
-                    收入明细
+                    支出明细
                   </div>
                   <div
                       v-for="(outcome, index) in OutComeDetails"
