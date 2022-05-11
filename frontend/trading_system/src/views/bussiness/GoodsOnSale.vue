@@ -17,6 +17,7 @@
             <v-btn
                 color="orange lighten-2"
                 text
+                @click="showMessage"
             >
               Explore
             </v-btn>
@@ -50,6 +51,7 @@
 
 import GoodService from "../../api/goods/goods";
 import TimeService from "../../api/time/time";
+import GlobalMessage from '../../components/GlobalMsgbar/api';
 import ResponseExtractor from "../../utils/response-extractor";
 
 export default {
@@ -69,6 +71,9 @@ export default {
 
   },
   methods: {
+    showMessage(){
+      GlobalMessage.success("还没想好要搞什么功能噢")
+    },
     getGoodList(){
       GoodService.getSaleGoodListByAccount().then((resp) =>{
         const goodsList = ResponseExtractor.getData(resp);

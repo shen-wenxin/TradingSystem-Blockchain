@@ -82,7 +82,11 @@ public enum Status {
 
     BLOCKCHAIN_SERVICE_FAILED(11000, "区块链服务异常"),
 
-    USER_DATA_EXIST(11001, "用户数据已存在");
+    
+
+    USER_DATA_EXIST(11001, "用户数据已存在"),
+
+    TRADE_SERVICE_FAILED(11002, "交易失败,详情请问系统管理员");
 
     private int code;
     private String message;

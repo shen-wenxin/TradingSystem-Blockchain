@@ -25,6 +25,7 @@
                     text
                     v-bind="attrs"
                     v-on="on"
+                    @click="choosegood(good.id)"
                 >
                   点击退货
                 </v-btn>
@@ -33,7 +34,7 @@
                 <v-card-title class="text-h5">
                   请您确认退货信息
                 </v-card-title>
-                <v-card-text>名称: {{good.name}}<br>价格: {{good.price}}元 <br>发行者: {{good.issuer}}
+                <v-card-text>名称: {{choose.name}}<br>价格: {{choose.price}}元 <br>发行者: {{choose.issuer}}
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
@@ -47,7 +48,7 @@
                   <v-btn
                       color="green darken-1"
                       text
-                      @click="returnGood(index)"
+                      @click="returnGood(good.id)"
                   >
                     好耶
                   </v-btn>
@@ -99,8 +100,14 @@ export default {
   },
 
   methods: {
-    returnGood(index){
-      console.log(index)
+    async choosegood(index){
+      console.log("get in choose good")
+      this.choose = this.goods[index]
+      console.log(this.choose)
+    },
+    async returnGood(){
+      console.log("the index is:")
+      console.log(this.choose.id)
       GlobalMessage.success("该功能还未开放哦")
       this.dialog = false
     },
@@ -109,7 +116,9 @@ export default {
         const goodsList = ResponseExtractor.getData(resp);
         console.log("getGoodList", goodsList);
         for(var i = 0;i < goodsList.length;i ++){
+          console.log("i = " +i)
           var good = {
+            "id": i,
             "name": goodsList[i].name,
             "price": goodsList[i].price,
             "time": TimeService.timesampToTime(goodsList[i].lastUpdate),
@@ -128,6 +137,7 @@ export default {
       goodIndex: 0,
       dialog: false,
       goods :[],
+      choose : {},
       issuer: ""
 
     }

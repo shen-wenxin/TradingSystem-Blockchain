@@ -335,7 +335,7 @@ public class BlockChainMapperImpl implements BlockChainMapper{
             return true;
         } catch (Exception e){
             log.error("[BlockChainMapperImpl]createBuyTrade falied." + e.getMessage());
-            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+            throw new BussinessException(Status.TRADE_SERVICE_FAILED.code());
         }
 
     }
@@ -458,7 +458,7 @@ public class BlockChainMapperImpl implements BlockChainMapper{
             return acc;
         } catch (Exception e){
             log.error("[BlockChainMapperImpl]QueryAccountByUserMonth falied." + e.getMessage());
-            throw new BussinessException(Status.BLOCKCHAIN_SERVICE_FAILED.code());
+            throw new BussinessException(Status.JOB_ERROR.code());
 
         }
     }
