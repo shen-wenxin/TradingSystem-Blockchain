@@ -87,14 +87,27 @@ export default {
   methods: {
     async salegood(){
       if (this.$refs.goodsFrom.validate()){
-        GoodService.saleGood(this.goodRegister).then((resp) => {
-          const data = ResponseExtractor.getData(resp);
-          GlobalMessage.success("商品上架成功");
-          console.log("salegood response result", data);
-          this.$router.push({ path :"/goodsOnSale"}).catch(err => console.log(err));
-        }).catch((error) => {
-          console.log("register failed", error);
-        })
+
+        var price = this.goodRegister.price
+        console.log(price)
+        if (Number(price)){
+          console.log("is price")
+            GoodService.saleGood(this.goodRegister).then((resp) => {
+            const data = ResponseExtractor.getData(resp);
+            GlobalMessage.success("商品上架成功");
+            console.log("salegood response result", data);
+            this.$router.push({ path :"/goodsOnSale"}).catch(err => console.log(err));
+          }).catch((error) => {
+            console.log("register failed", error);
+          })
+        }else{
+            GlobalMessage.error("请输入正确价格:(");
+
+
+        }
+
+
+
       }
     }
 

@@ -103,7 +103,8 @@ export default {
 
   name: "BusHome",
   mounted(){
-    this.getBusInfo()
+    // this.getBusInfo()
+    this.getBusInfofake()
   },
   data() {
     return {
@@ -142,6 +143,29 @@ export default {
         this.IncomeDetails.push(...accountList)
       })
     },
+    getBusInfofake(){
+        this.pricemonth = "10"
+        this.username = "busnissman"
+        this.phone = "12345678910"
+        this.salesnum = "3"
+        this.pricesum = "100"
+        this.IncomeDetails = [{
+          "month":"5",
+          "income":10,
+          "total":100
+        },
+        {
+          "month":"4",
+          "income":20,
+          "total":90
+        },
+        {
+          "month":"3",
+          "income":70,
+          "total":70
+        },
+        ]
+    }
     
   }
 }
